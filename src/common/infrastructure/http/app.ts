@@ -1,8 +1,8 @@
 
-import routes from './routes/routes'
+import routes from './routes/routes.ts'
 import cors from 'cors'
 import express from 'express'
-import errorHandle from './middlewares/errorHandle'
+import errorHandle from './middlewares/errorHandle.ts'
 import swaggerJSDoc from 'swagger-jsdoc'
 import swaggerUi from 'swagger-ui-express'
 
@@ -19,13 +19,12 @@ const options = {
             version: '1.0.0'
         }
     },
-    apis: []
+    apis: ['./src/**/http/routes/*.ts']
 }
 
 const swaggerSpec = swaggerJSDoc(options)
 
 const app = express()
-
 
 app.use(express.json())
 app.use(cors(corsSettings))

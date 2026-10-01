@@ -23,12 +23,13 @@ namespace CreateProductUseCase {
         constructor(private productsRepository: ProductsRepository) {}
 
         async execute(input: Input): Promise<Output> {
-            if(!input.name || input.price <= 0 || input.quantity <= 0) throw new BadRequestError('Input data not provided or invalid')
+            if(!input.name || input.price <= 0 || input.price === undefined || input.quantity <= 0 || input.quantity === undefined) throw new BadRequestError('Input data not provided or invalid')
 
             await this.productsRepository.conflictingName(input.name)
-
+                
             const product = this.productsRepository.create(input)
             await this.productsRepository.insert(product)
+            console.log('ois')
 
             return {
                 id: product.id,

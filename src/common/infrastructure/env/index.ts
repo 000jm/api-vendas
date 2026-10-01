@@ -1,5 +1,5 @@
 
-import AppError from '@/common/domain/errors/app-errors'
+import AppError from '@/common/domain/errors/app-errors.ts'
 import z from 'zod'
 
 const envSchema = z.object({

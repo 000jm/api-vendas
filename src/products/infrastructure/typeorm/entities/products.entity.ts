@@ -1,10 +1,10 @@
 
 import ProductModel from "@/products/domain/models/products.model.ts"
-import { Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity('products')
 class Product implements ProductModel {
-    @PrimaryColumn('uuid')
+    @PrimaryGeneratedColumn('uuid')
     id: string;
     
     @Column('varchar')

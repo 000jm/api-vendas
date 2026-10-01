@@ -15,13 +15,13 @@ class ProductsTypeormRepository implements ProductsRepository {
     constructor() {
         this.productsRepository = dataSource.getRepository(Product)
     }
-
+    
     create(props: CreateProductProps): ProductModel {
         return this.productsRepository.create(props)
     }
-
-    insert(model: ProductModel): Promise<ProductModel> {
-        return this.productsRepository.save(model)
+    
+    async insert(model: ProductModel): Promise<ProductModel> {
+        return await this.productsRepository.save(model)
     }
 
     async findById(id: string): Promise<ProductModel> {

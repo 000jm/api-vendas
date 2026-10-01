@@ -1,9 +1,10 @@
 
+import { describe, expect, it, jest } from '@jest/globals'
 import CreateProductUseCase from "./create-product.usecase.ts"
-import testDataSource from "@/products/infrastructure/typeorm/testing/data-source.ts"
 import { ProductsRepository } from "@/products/domain/repositories/product.repository.ts"
 import ProductsInMemoryRepository from "@/products/infrastructure/in-memory/repositories/products-in-memory.repository.ts"
-import { describe, expect, it, jest } from '@jest/globals'
+import BadRequestError from "@/common/domain/errors/bad-request-error.ts"
+import ConflictError from "@/common/domain/errors/conflict-error.ts"
 
 describe('UseCase Unit Tests', () => {
     let sut: CreateProductUseCase.UseCase
@@ -12,11 +13,6 @@ describe('UseCase Unit Tests', () => {
     beforeEach(() => {
         repository = new ProductsInMemoryRepository()
         sut = new CreateProductUseCase.UseCase(repository)
-        // testDataSource.initialize()
-    })
-
-    afterEach(() => {
-        // testDataSource.destroy()
     })
 
     it('should create a product', async () => {
@@ -33,4 +29,66 @@ describe('UseCase Unit Tests', () => {
         expect(result.updated_at).toBeDefined()
         expect(spyInsert).toHaveBeenCalledTimes(1)
     })
+
+    it('should not possible to register a product with the name of another product', async () => {
+        const product1 = {
+            name: 'Product 1',
+            price: 10,
+            quantity: 5
+        }
+        const input = {
+            name: 'Product 1',
+            price: 5,
+            quantity: 10
+        }
+
+        await sut.execute(input)
+        await expect(sut.execute(input)).rejects.toThrow(
+            new ConflictError(`Name already exists: ${input.name}`)
+        )
+        await expect(sut.execute(input)).rejects.toBeInstanceOf(ConflictError)
+    })
+
+    it('should throw error when name is not provided correctly', async () => {
+        const input = {
+            name: null,
+            quantity: 10,
+            price: 5
+        }
+
+        const result = sut.execute(input)
+        await expect(result).rejects.toThrow(
+            new BadRequestError('Input data not provided or invalid')
+        )
+        await expect(result).rejects.toBeInstanceOf(BadRequestError)
+    })
+
+    it('should error when price is not provided correctly', async () => {
+        const input = {
+            name: 'product',
+            price: -13,
+            quantity: 10
+        }
+
+        const result = sut.execute(input)
+        await expect(result).rejects.toThrow(
+            new BadRequestError('Input data not provided or invalid')
+        )
+        await expect(result).rejects.toBeInstanceOf(BadRequestError)
+    })
+
+    it('should throw error when quantity is not provided correctly', async () => {
+        const input = {
+            name: 'product',
+            price: +22,
+            quantity: undefined
+        }
+
+        const result = sut.execute(input)
+        await expect(result).rejects.toThrow(
+            new BadRequestError('Input data not provided or invalid')
+        )
+        await expect(result).rejects.toBeInstanceOf(BadRequestError)
+    })
+
 })
