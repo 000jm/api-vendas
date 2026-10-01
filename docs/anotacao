@@ -1,0 +1,4 @@
+
+json:
+    // "pretest:int": "docker run --name testsdb -e POSTGRES_PASSWORD=postgres -p 5433:5432 -d postgres",
+    // "posttest:int": "docker rm -f testsdb"
