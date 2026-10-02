@@ -1,4 +1,5 @@
 
+import 'reflect-metadata'
 import { describe, expect, it, jest } from '@jest/globals'
 import CreateProductUseCase from "./create-product.usecase.ts"
 import { ProductsRepository } from "@/products/domain/repositories/product.repository.ts"

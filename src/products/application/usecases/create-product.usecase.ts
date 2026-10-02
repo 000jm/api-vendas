@@ -1,6 +1,7 @@
 
 import BadRequestError from "@/common/domain/errors/bad-request-error.ts"
-import { ProductsRepository } from "@/products/domain/repositories/product.repository.ts"
+import type { ProductsRepository } from "@/products/domain/repositories/product.repository.ts"
+import { inject, injectable } from "tsyringe"
 
 namespace CreateProductUseCase {
 
@@ -19,8 +20,12 @@ namespace CreateProductUseCase {
         updated_at: Date
     }
 
+    @injectable()
     export class UseCase {
-        constructor(private productsRepository: ProductsRepository) {}
+        constructor(
+            @inject('ProductRepository') 
+            private productsRepository: ProductsRepository,
+        ) {}
 
         async execute(input: Input): Promise<Output> {
             if(!input.name || input.price <= 0 || input.price === undefined || input.quantity <= 0 || input.quantity === undefined) throw new BadRequestError('Input data not provided or invalid')
@@ -29,7 +34,6 @@ namespace CreateProductUseCase {
                 
             const product = this.productsRepository.create(input)
             await this.productsRepository.insert(product)
-            console.log('ois')
 
             return {
                 id: product.id,

@@ -2,12 +2,12 @@
 {
   "name": "api-vendas",
   "version": "1.0.0",
-  "main": "",
+  "type": "module",
+  "main": "server.ts",
   "scripts": {
     "dev": "ts-node-dev --env-file=.env.test -r tsconfig-paths/register --inspect --transpile-only --ignore-watch node_modules src/common/infrastructure/http/server.ts",
     "typeorm": "ts-node-dev -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
     "lint": "eslint .",
-    
     "test": "npx dotenv-cli -e .env.test -- node --experimental-vm-modules ./node_modules/jest/bin/jest.js --runInBand",
     "test:int": "npx dotenv-cli -e .env.test -- node --experimental-vm-modules ./node_modules/jest/bin/jest.js --runInBand --config ./jest.int.config.ts"
   },
@@ -25,6 +25,7 @@
     "reflect-metadata": "^0.2.2",
     "swagger-jsdoc": "^6.3.0",
     "swagger-ui-express": "^5.0.1",
+    "tsyringe": "^4.10.0",
     "typeorm": "^0.3.31",
     "zod": "^4.6.2"
   },

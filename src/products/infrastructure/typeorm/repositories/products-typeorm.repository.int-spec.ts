@@ -1,4 +1,5 @@
 
+import 'reflect-metadata'
 import testDataSource from "@/products/infrastructure/typeorm/testing/data-source.ts"
 import ProductsTypeormRepository from "./products-typeorm.repository.ts"
 import Product from "../entities/products.entity.ts"
@@ -12,9 +13,11 @@ import { describe, expect, it } from '@jest/globals'
 
 describe('ProductsTypeormRepository integration tests', () => {
     let ormRepository: ProductsTypeormRepository
+    let typeormEntityManager: any
 
     beforeAll(async () => {
         await testDataSource.initialize()
+        typeormEntityManager = testDataSource.createEntityManager()
     })
 
     afterAll(async () => {
@@ -23,8 +26,7 @@ describe('ProductsTypeormRepository integration tests', () => {
 
     beforeEach(async () => {
         await testDataSource.manager.query('DELETE FROM products')
-        ormRepository = new ProductsTypeormRepository()
-        ormRepository.productsRepository = testDataSource.getRepository(Product)
+        ormRepository = new ProductsTypeormRepository(typeormEntityManager.getRepository(Product))
     })
 
     describe('create', () => {
@@ -101,8 +103,8 @@ describe('ProductsTypeormRepository integration tests', () => {
             await ormRepository.delete(data.id)
             // const result = await ormRepository.delete(data.id)
             // const result = ormRepository.delete(data.id)
-            const result = await ormRepository.productsRepository.findOneBy({id})
-            expect(result).toBeNull()
+            const result = ormRepository.findById(id)
+            await expect(result).rejects.toBeInstanceOf(NotFoundError)
             // const result = ormRepository.delete(data.id)
             // expect(result).toBeUndefined()
             // await expect(result).resolves.toBeUndefined()

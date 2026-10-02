@@ -3,25 +3,26 @@ import { SearchInput, SearchOutput } from "@/common/domain/repository/repository
 import ProductModel from "@/products/domain/models/products.model.ts"
 import { CreateProductProps, ProductId, ProductsRepository } from "@/products/domain/repositories/product.repository.ts"
 import Product from "../entities/products.entity.ts"
-import dataSource from "@/common/infrastructure/typeorm/index.ts"
 import { ILike, In, Repository } from "typeorm"
 import NotFoundError from "@/common/domain/errors/not-found-error.ts"
 import ConflictError from "@/common/domain/errors/conflict-error.ts"
+import { inject, injectable } from "tsyringe"
 
+@injectable()
 class ProductsTypeormRepository implements ProductsRepository {
     sortableFields:string[] = ['name', 'created_at', 'price']
-    productsRepository: Repository<Product>
 
-    constructor() {
-        this.productsRepository = dataSource.getRepository(Product)
-    }
+    constructor(
+        @inject('ProductsDefaultTypeormRepository')
+        private productsRepository: Repository<Product>
+    ) {}
     
     create(props: CreateProductProps): ProductModel {
         return this.productsRepository.create(props)
     }
     
-    async insert(model: ProductModel): Promise<ProductModel> {
-        return await this.productsRepository.save(model)
+    insert(model: ProductModel): Promise<ProductModel> {
+        return this.productsRepository.save(model)
     }
 
     async findById(id: string): Promise<ProductModel> {
