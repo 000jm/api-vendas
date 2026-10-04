@@ -7,7 +7,7 @@ import ProductsInMemoryRepository from "@/products/infrastructure/in-memory/repo
 import BadRequestError from "@/common/domain/errors/bad-request-error.ts"
 import ConflictError from "@/common/domain/errors/conflict-error.ts"
 
-describe('UseCase Unit Tests', () => {
+describe('create UseCase Unit Tests', () => {
     let sut: CreateProductUseCase.UseCase
     let repository: ProductsRepository
     

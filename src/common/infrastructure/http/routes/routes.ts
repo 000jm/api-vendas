@@ -10,5 +10,6 @@ routes.get('/', (req: Request, res: Response) => {
 })
 
 routes.use('/products', productRouter)
+routes.use('/products/:id', productRouter)
 
 export default routes

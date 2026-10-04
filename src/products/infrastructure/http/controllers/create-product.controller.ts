@@ -1,10 +1,10 @@
 
-import AppError from "@/common/domain/errors/app-errors.ts"
 import { Request, Response } from "express"
 import z from "zod"
-import CreateProductUseCase from "@/products/application/usecases/create-product.usecase.ts"
+import CreateProductUseCase from "@/products/application/usecases/create/create-product.usecase.ts"
 import '@/common/infrastructure/container'
 import { container } from "tsyringe"
+import dataValidation from "@/common/infrastructure/validation/zod/index.ts"
 
 async function createProductController(req: Request, res: Response) {
 
@@ -14,13 +14,8 @@ async function createProductController(req: Request, res: Response) {
         quantity: z.number()
     })
 
-    const validData = createProductSchema.safeParse(req.body)
-    if(!validData.success) {
-        console.error('Invalid data', validData.error)
-        throw new AppError(`deu erro`)
-    }
-
-    const { name, price, quantity } = validData.data
+    const validData = await dataValidation(createProductSchema, req.body)
+    const { name, price, quantity } = validData
 
     const createProductUseCase: CreateProductUseCase.UseCase = container.resolve('CreateProductUseCase')
 
