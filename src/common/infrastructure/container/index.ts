@@ -1,2 +1,2 @@
 
-import '@/products/infrastructure/container'
+import '@/products/infrastructure/container/index.ts'

@@ -1,5 +1,4 @@
 
-import AppError from "@/common/domain/errors/app-errors.ts"
 import { Request, Response } from "express"
 import z from "zod"
 import '@/common/infrastructure/container'

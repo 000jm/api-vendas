@@ -32,13 +32,19 @@ class ProductsTypeormRepository implements ProductsRepository {
     }
 
     async update(model: ProductModel): Promise<ProductModel> {
-        // await this._get(model.id)
-        // await this.productsRepository.update({ id: model.id }, model)
-
-        await this._get(model.id)
-        await this.productsRepository.update({ id: model.id }, model)
-
-        return model
+        const validProduct = await this._get(model.id)
+        const updated_at = new Date()
+        const updatedProduct = {
+            id: validProduct.id,
+            ...(model.name !== undefined && {name: model.name}),
+            ...(model.price !== undefined && {price: model.price}),
+            ...(model.quantity !== undefined && {quantity: model.quantity}),
+            updated_at,
+        }
+        if(model.name === validProduct.name) this.conflictingName(model.name)
+        await this.productsRepository.update({ id: model.id }, updatedProduct)
+        
+        return updatedProduct
     }
 
     async delete(id: string): Promise<void> {
@@ -94,7 +100,7 @@ class ProductsTypeormRepository implements ProductsRepository {
     async conflictingName(name: string): Promise<void> {
         const product = await this.productsRepository.findOneBy({ name })
         if(product) {
-            throw new ConflictError(`Product ${name} already in use`)
+            throw new ConflictError(`Product name ${name} already in use`)
         }
     }
 
