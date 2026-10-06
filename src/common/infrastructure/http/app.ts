@@ -1,4 +1,5 @@
 
+import 'express-async-errors'
 import routes from './routes/routes.ts'
 import cors from 'cors'
 import express from 'express'

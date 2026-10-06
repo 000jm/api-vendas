@@ -1,3 +1,4 @@
+
 import AppError from "@/common/domain/errors/app-errors";
 import { NextFunction, Request, Response } from "express";
 
@@ -11,12 +12,9 @@ function errorHandle(err:Error, req:Request, res:Response, _next:NextFunction):R
 
     console.log(err)
 
-    const response = res.status(500).json({
-        status: 500,
-        message: 'internal server error'
-    })
-
-    return response
+    return res
+    .status(500)
+    .json({ status: 500, message: 'internal server error' })
 }
 
 export default errorHandle

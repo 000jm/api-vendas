@@ -32,7 +32,7 @@ describe('ProductsTypeormRepository integration tests', () => {
     describe('create', () => {
         it('should create a product', async () => {
             const data = await ProductsDataBuilder({})
-            const result = ormRepository.create(data)
+            const result = ormRepository.create({ name: data.name, price: data.price, quantity: data.quantity })
             expect(result.updated_at).toStrictEqual(data.updated_at)
         })
     })

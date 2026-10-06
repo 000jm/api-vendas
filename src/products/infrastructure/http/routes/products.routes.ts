@@ -3,6 +3,7 @@ import { Router } from "express"
 import createProductController from "../controllers/create-product.controller.ts"
 import getProductController from "../controllers/get-product.controller.ts"
 import updateProductController from "../controllers/update-product.controller.ts"
+import deleteProductController from "../controllers/delete-product.controller.ts"
 
 const productRouter = Router()
 
@@ -138,5 +139,26 @@ productRouter.get('/:id', getProductController)
  *         description: Name already used on another product
  */
 productRouter.put('/:id', updateProductController)
+
+/**
+ * @swagger
+ * /products/{id}:
+ *   delete:
+ *     summary: Delete a product by ID
+ *     tags: [Products]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The product ID
+ *     responses:
+ *       204:
+ *         description: The product was successfully deleted
+ *       404:
+ *         description: The product was not found
+ */
+productRouter.delete('/:id', deleteProductController)
 
 export default productRouter

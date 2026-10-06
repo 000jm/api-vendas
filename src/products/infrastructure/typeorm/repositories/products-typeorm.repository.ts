@@ -3,7 +3,7 @@ import { SearchInput, SearchOutput } from "@/common/domain/repository/repository
 import ProductModel from "@/products/domain/models/products.model.ts"
 import { CreateProductProps, ProductId, ProductsRepository } from "@/products/domain/repositories/product.repository.ts"
 import Product from "../entities/products.entity.ts"
-import { ILike, In, Repository } from "typeorm"
+import { In, Repository } from "typeorm"
 import NotFoundError from "@/common/domain/errors/not-found-error.ts"
 import ConflictError from "@/common/domain/errors/conflict-error.ts"
 import { inject, injectable } from "tsyringe"
@@ -41,7 +41,7 @@ class ProductsTypeormRepository implements ProductsRepository {
             ...(model.quantity !== undefined && {quantity: model.quantity}),
             updated_at,
         }
-        if(model.name === validProduct.name) this.conflictingName(model.name)
+        if(model.name === validProduct.name) await this.conflictingName(model.name)
         await this.productsRepository.update({ id: model.id }, updatedProduct)
         
         return updatedProduct
@@ -53,26 +53,18 @@ class ProductsTypeormRepository implements ProductsRepository {
     }
 
     async search(props: SearchInput): Promise<SearchOutput<ProductModel>> {
-        const validSort = this.sortableFields.includes(props.sort) || false
+        const validSort: boolean = this.sortableFields.includes(props.sort) || false
         const dirOps = ['asc', 'desc']
-        let validSortDir: boolean
+        const validSortDir: boolean = (props.sort_dir && dirOps.includes(props.sort_dir)) || false
 
-        if (props.sort_dir === null || props.sort_dir === undefined) validSortDir = true
-        else validSortDir = dirOps.includes(props.sort_dir.toLowerCase())
-        
-        const orderByField = validSort ? props.sort : 'created_at'
-        
-        const orderByDir =
-            props.sort_dir === null || props.sort_dir === undefined
-                ? 'desc'
-                : validSortDir
-                    ? props.sort_dir.toLowerCase()
-                    : 'desc'
+        const orderByField: string = validSort ? props.sort : 'created_at'
+        const orderByDir: string = validSortDir ? props.sort_dir : 'desc'
  
         if(!props.page) props.page = 1
         if(!props.per_page) props.per_page = 10
+
         const [products, total] = await this.productsRepository.findAndCount({
-            ...(props.filter && {where: { name: ILike(props.filter) }}),
+            ...(props.filter && {where: { name: props.filter.toLowerCase() }}),
             order: { [orderByField]: orderByDir },
             skip: (props.page - 1) * props.per_page,
             take: props.per_page,
