@@ -1,16 +1,19 @@
 
-import { SearchInput, SearchOutput } from "@/common/domain/repository/repository.interface.ts"
+
 import ProductModel from "@/products/domain/models/products.model.ts"
 import { CreateProductProps, ProductId, ProductsRepository } from "@/products/domain/repositories/product.repository.ts"
 import Product from "../entities/products.entity.ts"
-import { In, Repository } from "typeorm"
+import { ILike, In, Repository } from "typeorm"
 import NotFoundError from "@/common/domain/errors/not-found-error.ts"
 import ConflictError from "@/common/domain/errors/conflict-error.ts"
 import { inject, injectable } from "tsyringe"
+import BadRequestError from "@/common/domain/errors/bad-request-error.ts"
+import SearchInput from "@/products/application/usecases/dtos/search-input.dto.ts"
+import { SearchOutput } from "@/common/domain/repository/repository.interface.ts"
 
 @injectable()
 class ProductsTypeormRepository implements ProductsRepository {
-    sortableFields:string[] = ['name', 'created_at', 'price']
+    sortableFields:string[] = ['name', 'created_at', 'price', 'quantity']
 
     constructor(
         @inject('ProductsDefaultTypeormRepository')
@@ -63,8 +66,14 @@ class ProductsTypeormRepository implements ProductsRepository {
         if(!props.page) props.page = 1
         if(!props.per_page) props.per_page = 10
 
+        if(props.sort_dir && props.sort_dir !== 'desc' && props.sort_dir !== 'asc') throw new BadRequestError('Try a valid sort directory(asc or desc)')
+
         const [products, total] = await this.productsRepository.findAndCount({
-            ...(props.filter && {where: { name: props.filter.toLowerCase() }}),
+            ...(props.filter && {
+                where: {
+                    name: ILike(`%${props.filter}%`)
+                }
+            }),
             order: { [orderByField]: orderByDir },
             skip: (props.page - 1) * props.per_page,
             take: props.per_page,

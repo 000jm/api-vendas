@@ -3,12 +3,9 @@ import dataValidation from "@/common/infrastructure/validation/zod";
 import DeleteProductUseCase from "@/products/application/usecases/delete/delete-product.usecase";
 import { Request, Response } from "express";
 import { container } from "tsyringe";
-import z from "zod";
+import { deleteProductSchema } from "../schemas/product.schemas";
 
-async function deleteProductController(req: Request, res: Response) {
-    const deleteProductSchema = z.object({
-        id: z.string()
-    })
+async function deleteProductController(req: Request, res: Response): Promise<Response> {
 
     const validData = await dataValidation(deleteProductSchema, req.params)
 
@@ -16,6 +13,7 @@ async function deleteProductController(req: Request, res: Response) {
 
     await deleteProductUseCase.execute(validData)
 
-    return res.status(204).send()
+    return res.status(200).json({ message: 'Product has been deleted!!' })
 }
 export default deleteProductController
+

@@ -7,6 +7,7 @@ import CreateProductUseCase from "@/products/application/usecases/create/create-
 import GetProductUseCase from "@/products/application/usecases/get/get-product.usecase.ts"
 import UpdateProductUseCase from "@/products/application/usecases/update/update-product.usecase"
 import DeleteProductUseCase from "@/products/application/usecases/delete/delete-product.usecase"
+import SearchProductUseCase from "@/products/application/usecases/search/search-product.usecase"
 
 container.registerSingleton('ProductRepository', ProductsTypeormRepository)
 container.registerInstance('ProductsDefaultTypeormRepository', dataSource.getRepository(Product))
@@ -18,3 +19,5 @@ container.registerSingleton('GetProductUseCase', GetProductUseCase.UseCase)
 container.registerSingleton('UpdateProductUseCase', UpdateProductUseCase.UseCase)
 
 container.registerSingleton('DeleteProductUseCase', DeleteProductUseCase.UseCase)
+
+container.registerSingleton('SearchProductUseCase', SearchProductUseCase.UseCase)

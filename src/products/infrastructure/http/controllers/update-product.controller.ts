@@ -1,24 +1,14 @@
 
 import { Request, Response } from "express"
-import z from "zod"
 import '@/common/infrastructure/container'
 import { container } from "tsyringe"
 import dataValidation from "@/common/infrastructure/validation/zod"
 import UpdateProductUseCase from "@/products/application/usecases/update/update-product.usecase"
 import ProductModel from "@/products/domain/models/products.model"
 import AppError from "@/common/domain/errors/app-errors"
+import { updateProductIdSchema, updateProductSchema } from "../schemas/product.schemas"
 
-async function updateProductController(req: Request, res: Response) {
-
-    const updateProductIdSchema = z.object({
-        id: z.string(),
-    })
-
-    const updateProductSchema = z.object({
-        name: z.string().optional(),
-        price: z.number().optional(),
-        quantity: z.number().optional(),
-    })
+async function updateProductController(req: Request, res: Response): Promise<Response> {
 
     const validDataId = await dataValidation(updateProductIdSchema, req.params)
     const id = validDataId.id

@@ -1,7 +1,8 @@
 
 import { randomUUID } from "crypto"
 import NotFoundError from "../errors/not-found-error.ts"
-import { RepositoryInterface, SearchInput, SearchOutput } from "./repository.interface.ts"
+import { RepositoryInterface, SearchOutput } from "./repository.interface.ts"
+import SearchInput from "@/products/application/usecases/dtos/search-input.dto.ts"
 
 export type ModelProps = {
     id?: string

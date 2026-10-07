@@ -7,7 +7,7 @@ import NotFoundError from "@/common/domain/errors/not-found-error.ts"
 import { randomUUID } from "node:crypto"
 import ProductsDataBuilder from "../../testing/helpers/products-data-builder.ts"
 import ConflictError from "@/common/domain/errors/conflict-error.ts"
-import { SearchInput } from "@/common/domain/repository/repository.interface.ts"
+import SearchInput from '@/products/application/usecases/dtos/search-input.dto.ts'
 import ProductModel from "@/products/domain/models/products.model.ts"
 import { describe, expect, it } from '@jest/globals'
 

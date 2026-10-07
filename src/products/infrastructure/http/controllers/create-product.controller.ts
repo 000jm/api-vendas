@@ -1,18 +1,12 @@
 
 import { Request, Response } from "express"
-import z from "zod"
 import CreateProductUseCase from "@/products/application/usecases/create/create-product.usecase.ts"
 import '@/common/infrastructure/container'
 import { container } from "tsyringe"
 import dataValidation from "@/common/infrastructure/validation/zod/index.ts"
+import { createProductSchema } from "../schemas/product.schemas"
 
-async function createProductController(req: Request, res: Response) {
-
-    const createProductSchema = z.object({
-        name: z.string(),
-        price: z.number(),
-        quantity: z.number()
-    })
+async function createProductController(req: Request, res: Response): Promise<Response> {
 
     const validData = await dataValidation(createProductSchema, req.body)
     const { name, price, quantity } = validData

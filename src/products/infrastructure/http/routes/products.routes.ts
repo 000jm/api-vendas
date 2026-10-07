@@ -4,6 +4,7 @@ import createProductController from "../controllers/create-product.controller.ts
 import getProductController from "../controllers/get-product.controller.ts"
 import updateProductController from "../controllers/update-product.controller.ts"
 import deleteProductController from "../controllers/delete-product.controller.ts"
+import searchProductController from "../controllers/search-product.controller.ts"
 
 const productRouter = Router()
 
@@ -160,5 +161,52 @@ productRouter.put('/:id', updateProductController)
  *         description: The product was not found
  */
 productRouter.delete('/:id', deleteProductController)
+
+/**
+ * @swagger
+ * /products:
+ *   get:
+ *     summary: Returns a paginated list of products
+ *     tags: [Products]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: The page number to retrieve
+ *       - in: query
+ *         name: per_page
+ *         schema:
+ *           type: integer
+ *           default: 15
+ *         description: Number of items per page
+ *       - in: query
+ *         name: sort
+ *         schema:
+ *           type: string
+ *           default: null
+ *         description: Field to sort by
+ *       - in: query
+ *         name: sort_dir
+ *         schema:
+ *           type: string
+ *           default: null
+ *         description: Sort direction (asc or desc)
+ *       - in: query
+ *         name: filter
+ *         schema:
+ *           type: string
+ *           default: null
+ *         description: Filter string to search for specific products
+ *     responses:
+ *       200:
+ *         description: A paginated list of products
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ProductListResponse'
+ */
+productRouter.get('/', searchProductController)
 
 export default productRouter
