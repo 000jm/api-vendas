@@ -7,7 +7,7 @@ import z from "zod"
  * @param data objeto com os dados a serem validados
  * @returns retorna os dados validados
  */
-async function dataValidation(schema: any, data: any) {
+export async function productDataValidation(schema: any, data: any) {
     const validData = schema.safeParse(data)
     if(!validData.success) {
         console.error('Invalid data: ', validData.error)
@@ -16,5 +16,3 @@ async function dataValidation(schema: any, data: any) {
 
     return validData.data
 }
-
-export default dataValidation

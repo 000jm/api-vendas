@@ -2,18 +2,18 @@
 import { Request, Response } from "express"
 import '@/common/infrastructure/container'
 import { container } from "tsyringe"
-import dataValidation from "@/common/infrastructure/validation/zod"
 import UpdateProductUseCase from "@/products/application/usecases/update/update-product.usecase"
 import ProductModel from "@/products/domain/models/products.model"
 import AppError from "@/common/domain/errors/app-errors"
 import { updateProductIdSchema, updateProductSchema } from "../schemas/product.schemas"
+import { productDataValidation } from "@/common/infrastructure/validation/zod"
 
 async function updateProductController(req: Request, res: Response): Promise<Response> {
 
-    const validDataId = await dataValidation(updateProductIdSchema, req.params)
+    const validDataId = await productDataValidation(updateProductIdSchema, req.params)
     const id = validDataId.id
 
-    const validData = await dataValidation(updateProductSchema, req.body)
+    const validData = await productDataValidation(updateProductSchema, req.body)
     const { name, price, quantity } = validData
     if(name === undefined && price === undefined && quantity === undefined) {
         throw new AppError('Invalid data')

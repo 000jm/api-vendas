@@ -3,12 +3,12 @@ import { Request, Response } from "express"
 import '@/common/infrastructure/container'
 import { container } from "tsyringe"
 import GetProductUseCase from "@/products/application/usecases/get/get-product.usecase.ts"
-import dataValidation from "@/common/infrastructure/validation/zod"
 import { getProductSchema } from "../schemas/product.schemas"
+import { productDataValidation } from "@/common/infrastructure/validation/zod"
 
 async function getProductController(req: Request, res: Response): Promise<Response> {
 
-    const validData = await dataValidation(getProductSchema, req.params)
+    const validData = await productDataValidation(getProductSchema, req.params)
     const id = validData.id
 
     const getProductUseCase: GetProductUseCase.UseCase = container.resolve('GetProductUseCase')

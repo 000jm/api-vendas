@@ -2,8 +2,8 @@
 import type { ProductsRepository } from "@/products/domain/repositories/product.repository.ts"
 import { inject, injectable } from "tsyringe"
 import ProductModel from "@/products/domain/models/products.model.ts"
-import SearchInput from "../dtos/search-input.dto.ts"
 import { PaginationOutputDto, PaginationOutputMapper } from "../dtos/search-output.dto.ts"
+import { SearchInput } from "@/common/domain/repository/repository.interface.ts"
 
 namespace SearchProductUseCase {
 

@@ -1,10 +1,9 @@
 {
   "name": "api-vendas",
   "version": "1.0.0",
-
   "main": "server.ts",
   "scripts": {
-    "dev": "ts-node-dev --env-file=.env.test -r tsconfig-paths/register --inspect --transpile-only --ignore-watch node_modules src/common/infrastructure/http/server.ts",
+    "dev": "ts-node-dev --env-file=.env.development -r tsconfig-paths/register --inspect --transpile-only --ignore-watch node_modules src/common/infrastructure/http/server.ts",
     "typeorm": "ts-node-dev -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
     "lint": "eslint .",
     "test": "npx dotenv-cli -e .env.test -- node --experimental-vm-modules ./node_modules/jest/bin/jest.js --runInBand",
@@ -15,6 +14,7 @@
   "license": "ISC",
   "description": "a complete crud project with database",
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "dotenv-cli": "^11.0.0",
@@ -31,6 +31,7 @@
   "devDependencies": {
     "@eslint/js": "^9.9.0",
     "@faker-js/faker": "^8.4.1",
+    "@types/bcryptjs": "^2.4.6",
     "@types/cors": "^2.8.19",
     "@types/express": "^4.17.21",
     "@types/jest": "^29.5.14",

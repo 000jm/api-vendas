@@ -1,5 +1,6 @@
 
 import productRouter from "@/products/infrastructure/http/routes/products.routes.ts";
+import { usersRoutes } from "@/users/infrastructure/http/routes/users.routes";
 import { Router } from "express";
 import { Request, Response } from "express";
 
@@ -11,5 +12,8 @@ routes.get('/', (req: Request, res: Response) => {
 
 routes.use('/products', productRouter)
 routes.use('/products/:id', productRouter)
+
+routes.use('/users', usersRoutes)
+routes.use('/users/:id', usersRoutes)
 
 export default routes

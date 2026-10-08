@@ -12,7 +12,7 @@ import BadRequestError from "@/common/domain/errors/bad-request-error.ts";
 @injectable()
 export class UsersTypeormRepository implements UsersRepository {    
     constructor(
-        @inject('UsersDefaultTypeormRepository')
+        @inject('UsersDefaultRepository')
         private usersRepository: Repository<User>
     ) {}
 
