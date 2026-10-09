@@ -4,7 +4,7 @@ import '@/common/infrastructure/container'
 import { container } from "tsyringe"
 import SearchProductUseCase from "@/products/application/usecases/search/search-product.usecase"
 import { searchProductSchema } from "../schemas/product.schemas"
-import { productDataValidation } from "@/common/infrastructure/validation/zod"
+import { productDataValidation } from "@/products/infrastructure/validation/zod"
 
 async function searchProductController(req: Request, res: Response): Promise<Response> {
 

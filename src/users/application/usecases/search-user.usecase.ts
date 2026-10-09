@@ -1,9 +1,9 @@
 
 import { inject, injectable } from "tsyringe"
-import { UsersTypeormRepository } from "@/users/infrastructure/typeorm/repositories/users-typeorm.repository"
 import { SearchInput } from "@/common/domain/repository/repository.interface"
 import { PaginationOutputDto, PaginationOutputMapper } from "@/products/application/usecases/dtos/search-output.dto"
 import { UserModel } from "@/users/domain/models/user.model"
+import type { UsersRepository } from "@/users/domain/repositories/users.repository"
 
 export namespace SearchUserUseCase {
     
@@ -15,7 +15,7 @@ export namespace SearchUserUseCase {
     export class UseCase {
         constructor(
             @inject('UsersRepository')
-            private usersRepository: UsersTypeormRepository,
+            private usersRepository: UsersRepository,
         ) {}
 
         async execute(input: Input): Promise<Output> {

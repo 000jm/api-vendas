@@ -4,7 +4,7 @@ import '@/common/infrastructure/container'
 import { container } from "tsyringe"
 import GetProductUseCase from "@/products/application/usecases/get/get-product.usecase.ts"
 import { getProductSchema } from "../schemas/product.schemas"
-import { productDataValidation } from "@/common/infrastructure/validation/zod"
+import { productDataValidation } from "@/products/infrastructure/validation/zod"
 
 async function getProductController(req: Request, res: Response): Promise<Response> {
 

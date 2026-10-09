@@ -1,7 +1,7 @@
 
 import { inject, injectable } from "tsyringe"
 import { UserOutput } from "../dtos/user-output.dto"
-import { UsersTypeormRepository } from "@/users/infrastructure/typeorm/repositories/users-typeorm.repository"
+import type { UsersRepository } from "@/users/domain/repositories/users.repository"
 
 export namespace UpdateUserUseCase {
     
@@ -15,7 +15,7 @@ export namespace UpdateUserUseCase {
     export class UseCase {
         constructor(
             @inject('UsersRepository')
-            private usersRepository: UsersTypeormRepository,
+            private usersRepository: UsersRepository,
         ) {}
 
         async execute(input: Input): Promise<Output> {

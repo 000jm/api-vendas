@@ -6,7 +6,7 @@ import UpdateProductUseCase from "@/products/application/usecases/update/update-
 import ProductModel from "@/products/domain/models/products.model"
 import AppError from "@/common/domain/errors/app-errors"
 import { updateProductIdSchema, updateProductSchema } from "../schemas/product.schemas"
-import { productDataValidation } from "@/common/infrastructure/validation/zod"
+import { productDataValidation } from "@/products/infrastructure/validation/zod"
 
 async function updateProductController(req: Request, res: Response): Promise<Response> {
 

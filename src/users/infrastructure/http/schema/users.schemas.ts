@@ -11,10 +11,16 @@ export const GetUserSchema = z.object({
     id: z.string()
 })
 
-export const searchUserSchema = z.object({
+export const SearchUserSchema = z.object({
     page: z.number().optional(),
     per_page: z.number().optional(),
     sort: z.string().optional(),
     sort_dir: z.string().optional(),
     filter: z.string().optional()
+})
+
+export const AuthenticateUserSchema = z.object({
+    // email: z.email(),
+    email: z.string(),
+    password: z.string()
 })

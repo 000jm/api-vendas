@@ -6,6 +6,7 @@ import { UsersTypeormRepository } from "../typeorm/repositories/users-typeorm.re
 import { CreateUserUseCase } from "@/users/application/usecases/create-user.usecase.ts"
 import { GetUserUseCase } from "@/users/application/usecases/get-user.usecase.ts"
 import { SearchUserUseCase } from "@/users/application/usecases/search-user.usecase.ts"
+import { AuthenticateUserUseCase } from "@/users/application/usecases/authenticate-user.usecase.ts"
 
 
 container.registerSingleton('UsersRepository', UsersTypeormRepository)
@@ -16,3 +17,5 @@ container.registerSingleton('CreateUserUseCase', CreateUserUseCase.UseCase)
 container.registerSingleton('GetUserUseCase', GetUserUseCase.UseCase)
 
 container.registerSingleton('SearchUserUseCase', SearchUserUseCase.UseCase)
+
+container.registerSingleton('AuthenticateUserUseCase', AuthenticateUserUseCase.UseCase)

@@ -1,8 +1,7 @@
 
-import { UsersTypeormRepository } from "@/users/infrastructure/typeorm/repositories/users-typeorm.repository"
 import { UserOutput } from "../dtos/user-output.dto"
 import { inject, injectable } from "tsyringe"
-import BadRequestError from "@/common/domain/errors/bad-request-error"
+import type { UsersRepository } from "@/users/domain/repositories/users.repository"
 
 export namespace GetUserUseCase {
 
@@ -17,12 +16,10 @@ export namespace GetUserUseCase {
 
         constructor(
             @inject('UsersRepository')
-            private usersRepository: UsersTypeormRepository
+            private usersRepository: UsersRepository
         ) {}
 
         async execute(input: Input): Promise<Output> {
-            
-            if(!input.id) throw new BadRequestError('Input not provided or invalid')
 
             return this.usersRepository.findById(input.id)
 

@@ -4,7 +4,7 @@ import CreateProductUseCase from "@/products/application/usecases/create/create-
 import '@/common/infrastructure/container'
 import { container } from "tsyringe"
 import { createProductSchema } from "../schemas/product.schemas"
-import { productDataValidation } from "@/common/infrastructure/validation/zod"
+import { productDataValidation } from "@/products/infrastructure/validation/zod"
 
 async function createProductController(req: Request, res: Response): Promise<Response> {
 

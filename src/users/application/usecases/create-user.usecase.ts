@@ -1,9 +1,9 @@
 
 import { inject, injectable } from "tsyringe"
 import { UserOutput } from "../dtos/user-output.dto"
-import { UsersTypeormRepository } from "@/users/infrastructure/typeorm/repositories/users-typeorm.repository"
 import BadRequestError from "@/common/domain/errors/bad-request-error"
 import type { HashProvider } from "@/common/domain/providers/hash-provider"
+import type { UsersRepository } from "@/users/domain/repositories/users.repository"
 
 export namespace CreateUserUseCase {
     
@@ -20,7 +20,7 @@ export namespace CreateUserUseCase {
     export class UseCase {
         constructor(
             @inject('UsersRepository')
-            private usersRepository: UsersTypeormRepository,
+            private usersRepository: UsersRepository,
             @inject('HashProvider')
             private hashProvider: HashProvider
         ) {}

@@ -3,7 +3,7 @@ import { Request, Response } from "express"
 import { CreateUserSchema } from "../schema/users.schemas"
 import { CreateUserUseCase } from "@/users/application/usecases/create-user.usecase"
 import { container } from "tsyringe"
-import { productDataValidation } from "@/common/infrastructure/validation/zod"
+import { productDataValidation } from "@/products/infrastructure/validation/zod"
 
 export async function createUserController(req: Request, res: Response): Promise<Response> {
 
