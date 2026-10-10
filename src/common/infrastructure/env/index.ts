@@ -15,7 +15,12 @@ const envSchema = z.object({
     DB_USER: z.string().default('postgres'),
     DB_PASSWORD: z.string().default('postgres'),
     JWT_SECRET: z.string(),
-    JWT_EXPIRES_IN: z.coerce.number().default(86400)
+    JWT_EXPIRES_IN: z.coerce.number().default(86400),
+    SUPABASE_PROJECT_ID: z.string(),
+    SUPABASE_STORAGE_URL: z.url(),
+    BUCKET_NAME: z.string(),
+    AWS_ACESS_KEY_ID: z.string(),
+    AWS_SECRET_ACESS_KEY: z.string(),
 
 })
 
