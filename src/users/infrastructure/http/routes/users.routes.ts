@@ -3,7 +3,8 @@ import { Router } from "express"
 import { createUserController } from "../controllers/create-user.controller"
 import { searchUserController } from "../controllers/search-user.controller"
 import { isAuthenticatedHanlder } from "@/common/infrastructure/http/middlewares/isAuthenticatedHandle"
-import { getUserController } from "../controllers/get-user.controller"
+import { updateAvatarController } from "../controllers/update-avatar.controller"
+import { upload } from "../middlewares/usersAvatar.middleware"
 
 export const usersRoutes = Router()
 
@@ -84,9 +85,38 @@ export const usersRoutes = Router()
  */
 usersRoutes.post('/', createUserController)
 
-usersRoutes.get('/:id', getUserController)
-
-usersRoutes.use(isAuthenticatedHanlder)
+/**
+ * @swagger
+ * /users/avatar:
+ *   patch:
+ *     summary: Upload an image for a user
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               user_id:
+ *                 type: string
+ *                 format: uuid
+ *                 description: The user id
+ *               file:
+ *                 type: file
+ *                 format: binary
+ *                 description: The image file to upload
+ *     responses:
+ *       200:
+ *         description: The image was successfully uploaded
+ *       400:
+ *         description: Bad request
+ *       404:
+ *         description: The user was not found
+ *       500:
+ *         description: Some server error
+ */
+usersRoutes.patch('/avatar', isAuthenticatedHanlder, upload.single('file'),  updateAvatarController)
 
 /**
  * @swagger
@@ -133,4 +163,4 @@ usersRoutes.use(isAuthenticatedHanlder)
  *             schema:
  *               $ref: '#/components/schemas/UserListResponse'
  */
-usersRoutes.get('/', searchUserController)
+usersRoutes.get('/', isAuthenticatedHanlder, searchUserController)

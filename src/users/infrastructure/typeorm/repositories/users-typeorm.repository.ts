@@ -35,8 +35,9 @@ export class UsersTypeormRepository implements UsersRepository {
         const updatedUser = {
             ...validUser,
             ...(model.name !== undefined && {name: model.name}),
-            ...(model.password !== undefined && {price: model.password}),
-            ...(model.email !== undefined && {quantity: model.email}),
+            ...(model.password !== undefined && {password: model.password}),
+            ...(model.email !== undefined && {email: model.email}),
+            ...(model.avatar !== undefined && {avatar: model.avatar}),
             updated_at: new Date()
         }
         await this.usersRepository.update({ id: model.id }, updatedUser)

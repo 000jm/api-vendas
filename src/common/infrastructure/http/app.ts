@@ -8,8 +8,11 @@ import swaggerJSDoc from 'swagger-jsdoc'
 import swaggerUi from 'swagger-ui-express'
 
 const corsSettings = {
-    origin: ['http://localhost:3000', 'http://localhost:5173'],
-    methods: ['GET']
+    origin: [
+        'http://localhost:3000',
+        'http://localhost:5173'
+    ],
+    methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE']
 }
 
 const options = {

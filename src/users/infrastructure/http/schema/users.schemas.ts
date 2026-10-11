@@ -24,3 +24,11 @@ export const AuthenticateUserSchema = z.object({
     email: z.string(),
     password: z.string()
 })
+
+export const UpdateUserBodySchema = z.object({
+    user_id: z.string().uuid()
+})
+
+export const UpdateUserAvatarFileSchema = z.any().refine(file => {
+    return !! file
+}, 'File is required')
