@@ -25,6 +25,7 @@ export namespace AuthenticateUserUseCase {
         ) {}
 
         async execute(input: Input): Promise<Output> {
+            
             if(!input.email || !input.password) throw new InvalidCredentialsError('Invaid credetials')
 
             const user = await this.usersRepository.findByEmail(input.email)
@@ -34,6 +35,7 @@ export namespace AuthenticateUserUseCase {
             if(!passwordMatch) throw new InvalidCredentialsError('Invalid credetials')
 
             return user
+            
         }
 
     }

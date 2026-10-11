@@ -8,6 +8,7 @@ export class StorageUploader implements UploaderProvider {
     private readonly client: S3Client
 
     constructor() {
+
         this.client = new S3Client({
             endpoint: `${env.SUPABASE_STORAGE_URL}`,
             region: 'auto',
@@ -17,13 +18,11 @@ export class StorageUploader implements UploaderProvider {
                 secretAccessKey: env.AWS_SECRET_ACESS_KEY!
             }
         })
+
     }
 
     async upload({ filename, filetype, body }: UploaderProps): Promise<string> {
-        console.log('enviando')
 
-// const result = await this.client.send(new ListBucketsCommand({}))
-// console.log(result.Buckets?.map(bucket => bucket.Name))
         await this.client.send(new PutObjectCommand({
             Bucket: env.BUCKET_NAME,
             Key: filename,

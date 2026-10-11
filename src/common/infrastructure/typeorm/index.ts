@@ -3,7 +3,7 @@ import { DataSource } from 'typeorm'
 import { env } from '../env'
 
 const dataSource = new DataSource({
-    type: env.DB_TYPE,
+    type: env.DB_TYPE as 'postgres',
     host: env.DB_HOST,
     port: env.DB_PORT,
     schema: env.DB_SCHEMA,

@@ -21,6 +21,7 @@ const envSchema = z.object({
     BUCKET_NAME: z.string(),
     AWS_ACESS_KEY_ID: z.string(),
     AWS_SECRET_ACESS_KEY: z.string(),
+    SUPABASE_STORAGE_PUBLIC_URL: z.string()
 
 })
 

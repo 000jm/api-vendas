@@ -11,6 +11,7 @@ export type DecodedTokenProps = {
 
 @injectable()
 export class JwtAuthProvider implements AuthProvider {
+
     generateAuthKey(user_id: string): GenerateAuthKeyProps {
 
         const acess_token = jwt.sign({}, env.JWT_SECRET, {
@@ -21,6 +22,7 @@ export class JwtAuthProvider implements AuthProvider {
         return { acess_token }
 
     }
+    
     verifyAuthKey(token: string): VerifyAuthKeyProps {
         
         try {

@@ -31,18 +31,17 @@ export class UsersTypeormRepository implements UsersRepository {
     }
 
     async update(model: UserModel): Promise<UserModel> {
-        const validUser = await this._get(model.id)
-        const updatedUser = {
-            ...validUser,
+        const user = await this._get(model.id)
+        Object.assign(user, {
             ...(model.name !== undefined && {name: model.name}),
             ...(model.password !== undefined && {password: model.password}),
             ...(model.email !== undefined && {email: model.email}),
             ...(model.avatar !== undefined && {avatar: model.avatar}),
             updated_at: new Date()
-        }
-        await this.usersRepository.update({ id: model.id }, updatedUser)
+        })
+        await this.usersRepository.update({ id: model.id }, user)
 
-        return updatedUser
+        return user
     }
 
     async delete(id: string): Promise<void> {

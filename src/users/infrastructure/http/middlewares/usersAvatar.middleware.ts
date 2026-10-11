@@ -3,6 +3,7 @@ import BadRequestError from "@/common/domain/errors/bad-request-error"
 import multer from "multer"
 
 export const upload = multer({
+    
     storage: multer.memoryStorage(),
     limits: {
         fileSize: 1024 * 1024 * 3
@@ -16,4 +17,5 @@ export const upload = multer({
         callback(null, true)
         
     }
+
 })

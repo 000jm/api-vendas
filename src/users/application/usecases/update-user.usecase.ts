@@ -13,14 +13,18 @@ export namespace UpdateUserUseCase {
 
     @injectable()
     export class UseCase {
+
         constructor(
             @inject('UsersRepository')
             private usersRepository: UsersRepository,
         ) {}
 
         async execute(input: Input): Promise<Output> {
+
             return
+            
         }
+        
     }
 
 }

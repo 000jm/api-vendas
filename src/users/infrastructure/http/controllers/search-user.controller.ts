@@ -4,6 +4,7 @@ import { container } from "tsyringe"
 import { usersDataValidation } from "../validation/users.validation"
 import { SearchUserUseCase } from "@/users/application/usecases/search-user.usecase"
 import { SearchUserSchema } from "../schema/users.schemas"
+import { instanceToInstance } from "class-transformer"
 
 export async function searchUserController(req: Request, res: Response): Promise<Response> {
 
@@ -22,5 +23,6 @@ export async function searchUserController(req: Request, res: Response): Promise
 
     const result = await searchUserUseCase.execute(input)
     
-    return res.status(200).json(result.items)
+    return res.status(200).json(instanceToInstance(result.items))
+    
 }

@@ -23,4 +23,5 @@ export async function authenticateUserController(req: Request, res: Response): P
     const { acess_token } = authProvider.generateAuthKey(user.id)
 
     return res.status(200).json({ acess_token })
+    
 }

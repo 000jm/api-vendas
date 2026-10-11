@@ -4,6 +4,7 @@ import { CreateUserSchema } from "../schema/users.schemas"
 import { CreateUserUseCase } from "@/users/application/usecases/create-user.usecase"
 import { container } from "tsyringe"
 import { productDataValidation } from "@/products/infrastructure/validation/zod"
+import { instanceToInstance } from "class-transformer"
 
 export async function createUserController(req: Request, res: Response): Promise<Response> {
 
@@ -20,6 +21,6 @@ export async function createUserController(req: Request, res: Response): Promise
 
     const user = await createUserUseCase.execute(input)
 
-    return res.status(201).json(user)
+    return res.status(201).json(instanceToInstance(user))
 
 }

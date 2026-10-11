@@ -18,6 +18,7 @@ export namespace CreateUserUseCase {
 
     @injectable()
     export class UseCase {
+        
         constructor(
             @inject('UsersRepository')
             private usersRepository: UsersRepository,

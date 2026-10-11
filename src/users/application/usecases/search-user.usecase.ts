@@ -13,16 +13,19 @@ export namespace SearchUserUseCase {
 
     @injectable()
     export class UseCase {
+
         constructor(
             @inject('UsersRepository')
             private usersRepository: UsersRepository,
         ) {}
 
         async execute(input: Input): Promise<Output> {
+
             const searchResult = await this.usersRepository.search(input)
 
             return PaginationOutputMapper.toOutput(searchResult.items, searchResult)
-          }
+
+        }
     }
 
 }

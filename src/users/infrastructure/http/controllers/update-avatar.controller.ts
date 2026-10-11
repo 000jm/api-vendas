@@ -4,6 +4,7 @@ import { usersDataValidation } from "../validation/users.validation"
 import { UpdateUserAvatarFileSchema, UpdateUserBodySchema } from "../schema/users.schemas"
 import { UpdateAvatarUseCase } from "@/users/application/usecases/update-avatar-user.usecase"
 import { container } from "tsyringe"
+import { instanceToInstance } from "class-transformer"
 
 export async function updateAvatarController(req: Request, res: Response) {
 
@@ -13,14 +14,14 @@ export async function updateAvatarController(req: Request, res: Response) {
 
     const updateUserAvatar: UpdateAvatarUseCase.UseCase = container.resolve('UpdateAvatarUseCase')
 
-    const user_avatar = await updateUserAvatar.execute({
+    const user = await updateUserAvatar.execute({
         user_id: user_id,
-        filename: originalname,
+        filename: originalname.split(' ').join('-'),
         filesize: size,
         filetype: mimetype,
         body: buffer
     })
 
-    return res.status(200).json(user_avatar)
+    return res.status(200).json(instanceToInstance(user))
 
 }
