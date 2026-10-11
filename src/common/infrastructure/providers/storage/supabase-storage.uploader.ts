@@ -1,5 +1,4 @@
 
-import { ListBucketsCommand } from "@aws-sdk/client-s3"
 import { UploaderProps, UploaderProvider } from "@/common/domain/providers/uploader-provider";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { env } from "../../env";
@@ -11,7 +10,7 @@ export class StorageUploader implements UploaderProvider {
     constructor() {
         this.client = new S3Client({
             endpoint: `${env.SUPABASE_STORAGE_URL}`,
-            region: 'us-east-2',
+            region: 'auto',
             forcePathStyle: true,
             credentials: {
                 accessKeyId: env.AWS_ACESS_KEY_ID!,
