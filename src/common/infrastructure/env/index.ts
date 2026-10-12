@@ -1,4 +1,5 @@
 
+import 'dotenv/config'
 import AppError from '@/common/domain/errors/app-errors.ts'
 import z from 'zod'
 
