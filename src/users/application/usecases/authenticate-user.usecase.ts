@@ -4,6 +4,7 @@ import { UserOutput } from "../dtos/user-output.dto"
 import type { UsersRepository } from "@/users/domain/repositories/users.repository"
 import type { HashProvider } from "@/common/domain/providers/hash-provider"
 import { InvalidCredentialsError } from "@/common/domain/errors/invalid-credetials-error"
+import ConflictError from "@/common/domain/errors/conflict-error"
 
 export namespace AuthenticateUserUseCase {
 
@@ -29,6 +30,11 @@ export namespace AuthenticateUserUseCase {
             if(!input.email || !input.password) throw new InvalidCredentialsError('Invaid credetials')
 
             const user = await this.usersRepository.findByEmail(input.email)
+
+            if(!user) {
+                throw new ConflictError('Email already in use, try another')
+            }
+
             if(!user) throw new InvalidCredentialsError('Invalid credetials')
  
             const passwordMatch: boolean = await this.hashProvider.compareHash(input.password, user.password)

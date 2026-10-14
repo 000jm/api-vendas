@@ -32,3 +32,12 @@ export const UpdateUserBodySchema = z.object({
 export const UpdateUserAvatarFileSchema = z.any().refine(file => {
     return !! file
 }, 'File is required')
+
+export const SendEmailToResetPasswordSchema = z.object({
+    email: z.string().email()
+})
+
+export const ResetPasswordSchema = z.object({
+    token: z.string().uuid(),
+    password: z.string()
+})

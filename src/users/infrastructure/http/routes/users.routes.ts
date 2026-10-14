@@ -5,6 +5,7 @@ import { searchUserController } from "../controllers/search-user.controller"
 import { isAuthenticatedHanlder } from "@/common/infrastructure/http/middlewares/isAuthenticatedHandle"
 import { updateAvatarController } from "../controllers/update-avatar.controller"
 import { upload } from "../middlewares/usersAvatar.middleware"
+import { passwordRouter } from "./password.route"
 
 export const usersRoutes = Router()
 

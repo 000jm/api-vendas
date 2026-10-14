@@ -6,7 +6,7 @@ import { UpdateAvatarUseCase } from "@/users/application/usecases/update-avatar-
 import { container } from "tsyringe"
 import { instanceToInstance } from "class-transformer"
 
-export async function updateAvatarController(req: Request, res: Response) {
+export async function updateAvatarController(req: Request, res: Response): Promise<Response> {
 
     const { user_id } = await usersDataValidation(UpdateUserBodySchema, req.body)
 
