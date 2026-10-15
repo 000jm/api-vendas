@@ -11,6 +11,8 @@ import { UserTokens } from "../typeorm/entities/user-tokens.entity.ts"
 import { UserTokensTypeormRepository } from "../typeorm/repositories/user-token-typeorm.repository.ts"
 import { SendEmailToResetPasswordUseCase } from "@/users/application/usecases/send-to-email-to-reset-password.usecase.ts"
 import { ResetPasswordUseCase } from "@/users/application/usecases/reset-password.usecase.ts"
+import { GetUserUseCase } from "@/users/application/usecases/get-user.usecase.ts"
+import { UpdateUserUseCase } from "@/users/application/usecases/update-user.usecase.ts"
 
 
 container.registerSingleton('UsersRepository', UsersTypeormRepository)
@@ -30,3 +32,7 @@ container.registerSingleton('UpdateAvatarUseCase', UpdateAvatarUseCase.UseCase)
 container.registerSingleton('SendEmailToResetPasswordUseCase', SendEmailToResetPasswordUseCase.UseCase)
 
 container.registerSingleton('ResetPasswordUseCase', ResetPasswordUseCase.UseCase)
+
+container.registerSingleton('GetUserUseCase', GetUserUseCase.UseCase)
+
+container.registerSingleton('UpdateUserUseCase', UpdateUserUseCase.UseCase)

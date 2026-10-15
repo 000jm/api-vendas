@@ -16,7 +16,7 @@ export class UsersTypeormRepository implements UsersRepository {
         private usersRepository: Repository<User>
     ) {}
 
-    sortableFields: string[] = ['name', 'created_at']
+    sortableFields: string[] = ['updated_at', 'created_at']
 
     create(props: CreateUserProps): UserModel {
         return this.usersRepository.create(props)
@@ -31,17 +31,17 @@ export class UsersTypeormRepository implements UsersRepository {
     }
 
     async update(model: UserModel): Promise<UserModel> {
-        const user = await this._get(model.id)
-        Object.assign(user, {
-            ...(model.name !== undefined && {name: model.name}),
-            ...(model.password !== undefined && {password: model.password}),
-            ...(model.email !== undefined && {email: model.email}),
-            ...(model.avatar !== undefined && {avatar: model.avatar}),
-            updated_at: new Date()
-        })
-        await this.usersRepository.update({ id: model.id }, user)
+        await this.usersRepository.update(
+            { id: model.id },
+            {
+                name: model.name,
+                email: model.email,
+                password: model.password,
+                avatar: model.avatar,
+            }
+        )
 
-        return user
+        return model
     }
 
     async delete(id: string): Promise<void> {

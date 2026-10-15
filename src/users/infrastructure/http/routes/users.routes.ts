@@ -2,10 +2,11 @@
 import { Router } from "express"
 import { createUserController } from "../controllers/create-user.controller"
 import { searchUserController } from "../controllers/search-user.controller"
-import { isAuthenticatedHanlder } from "@/common/infrastructure/http/middlewares/isAuthenticatedHandle"
+import { isAuthenticatedHandler } from "@/common/infrastructure/http/middlewares/isAuthenticatedHandle"
 import { updateAvatarController } from "../controllers/update-avatar.controller"
 import { upload } from "../middlewares/usersAvatar.middleware"
-import { passwordRouter } from "./password.route"
+import { getUserController } from "../controllers/get-user.controller"
+import { updateUserController } from "../controllers/update-user.controller"
 
 export const usersRoutes = Router()
 
@@ -117,7 +118,7 @@ usersRoutes.post('/', createUserController)
  *       500:
  *         description: Some server error
  */
-usersRoutes.patch('/avatar', isAuthenticatedHanlder, upload.single('file'),  updateAvatarController)
+usersRoutes.patch('/avatar', isAuthenticatedHandler, upload.single('file'),  updateAvatarController)
 
 /**
  * @swagger
@@ -164,4 +165,68 @@ usersRoutes.patch('/avatar', isAuthenticatedHanlder, upload.single('file'),  upd
  *             schema:
  *               $ref: '#/components/schemas/UserListResponse'
  */
-usersRoutes.get('/', isAuthenticatedHanlder, searchUserController)
+usersRoutes.get('/', isAuthenticatedHandler, searchUserController)
+
+/**
+ * @swagger
+ * /users/profile:
+ *   get:
+ *     summary: Returns the user profile
+ *     tags: [Users]
+ *     responses:
+ *       200:
+ *         description: The user profile
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       401:
+ *         description: Unauthorized
+ */
+usersRoutes.get('/profile', isAuthenticatedHandler, getUserController)
+
+/**
+ * @swagger
+ * /users/profile:
+ *   put:
+ *     summary: Update the user profile
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: The name of the user
+ *               email:
+ *                 type: string
+ *                 description: The email of the user
+ *               old_password:
+ *                 type: string
+ *                 description: The old password of the user
+ *               password:
+ *                 type: string
+ *                 description: The new password of the user
+ *             example:
+ *               name: John Doe
+ *               email: sampleuser@mail.com
+ *               old_password: 1234
+ *               password: 5678
+ *     responses:
+ *       200:
+ *         description: The user profile was successfully updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Input data not provided or invalid
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: The user was not found
+ */
+usersRoutes.put('/profile', isAuthenticatedHandler, updateUserController)

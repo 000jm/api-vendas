@@ -35,11 +35,11 @@ export namespace CreateUserUseCase {
             const hashedPassword = await this.hashProvider.generateHash(input.password)
 
             const user = this.usersRepository.create(input)
-            // user.password = hashedPassword
-            Object.assign(user, { password: hashedPassword })
+            user.password = hashedPassword
+            // Object.assign(user, { password: hashedPassword })
 
-            return this.usersRepository.insert(user)
-            // return await this.usersRepository.insert(user)
+            // return this.usersRepository.insert(user)
+            return await this.usersRepository.insert(user)
 
         }
     }

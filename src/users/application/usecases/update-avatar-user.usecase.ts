@@ -37,7 +37,7 @@ export namespace UpdateAvatarUseCase {
             private uploader: UploaderProvider
         ) {}
 
-        async execute(input: Input): Promise<UserOutput> {
+        async execute(input: Input): Promise<Output> {
 
             const { user_id, filename, filesize, filetype, body } = input
 

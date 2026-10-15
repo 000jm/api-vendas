@@ -4,7 +4,7 @@ import { AuthProvider } from "@/common/domain/providers/auth-provider"
 import { NextFunction, Request, Response } from "express"
 import { container } from "tsyringe"
 
-export function isAuthenticatedHanlder(req: Request, _res: Response, next: NextFunction): void {
+export function isAuthenticatedHandler(req: Request, _res: Response, next: NextFunction): void {
     
     const authHeader = req.headers.authorization
 

@@ -14,18 +14,23 @@ export class JwtAuthProvider implements AuthProvider {
 
     generateAuthKey(user_id: string): GenerateAuthKeyProps {
 
-        const acess_token = jwt.sign({}, env.JWT_SECRET, {
-            expiresIn: env.JWT_EXPIRES_IN,
-            subject: user_id
-        })
+        try {
+            const acess_token = jwt.sign({}, env.JWT_SECRET, {
+                expiresIn: env.JWT_EXPIRES_IN,
+                subject: user_id
+            })
 
-        return { acess_token }
+            return { acess_token }
+        } catch {
+            throw new InvalidCredentialsError('Invalid credentials')
+        }
 
     }
     
     verifyAuthKey(token: string): VerifyAuthKeyProps {
         
         try {
+
             const decodedToken = jwt.verify(token, env.JWT_SECRET)
             const { sub } = decodedToken as DecodedTokenProps
 

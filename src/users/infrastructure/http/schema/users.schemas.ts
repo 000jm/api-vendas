@@ -25,7 +25,7 @@ export const AuthenticateUserSchema = z.object({
     password: z.string()
 })
 
-export const UpdateUserBodySchema = z.object({
+export const UpdateUserAvatarBodySchema = z.object({
     user_id: z.string().uuid()
 })
 
@@ -40,4 +40,22 @@ export const SendEmailToResetPasswordSchema = z.object({
 export const ResetPasswordSchema = z.object({
     token: z.string().uuid(),
     password: z.string()
+})
+
+export const UpdateUserBodySchema = z.object({
+    name: z.string(),
+    email: z.string().email(),
+    old_password: z.string().optional(),
+    password: z.string().optional()
+}).refine((data) => {
+
+    if(data.password && !data.old_password) {
+        return false
+    }
+
+    return true
+    
+}, {
+    message: 'Old password is required',
+    path: ['old_password']
 })
