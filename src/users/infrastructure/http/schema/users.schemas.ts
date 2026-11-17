@@ -4,7 +4,7 @@ import z from "zod"
 export const CreateUserSchema = z.object({
     name: z.string(),
     password: z.string(),
-    email: z.string()
+    email: z.string().trim().email().transform(email => email.toLowerCase())
 })
 
 export const GetUserSchema = z.object({
@@ -20,8 +20,7 @@ export const SearchUserSchema = z.object({
 })
 
 export const AuthenticateUserSchema = z.object({
-    // email: z.email(),
-    email: z.string(),
+    email: z.string().trim().toLowerCase(),
     password: z.string()
 })
 
@@ -35,6 +34,10 @@ export const UpdateUserAvatarFileSchema = z.any().refine(file => {
 
 export const SendEmailToResetPasswordSchema = z.object({
     email: z.string().email()
+})
+
+export const EmailStatusSchema = z.object({
+    email: z.string().trim().email().transform(email => email.toLowerCase())
 })
 
 export const ResetPasswordSchema = z.object({

@@ -85,12 +85,22 @@ export class UsersTypeormRepository implements UsersRepository {
     }
 
     async findByEmail(email: string): Promise<UserModel> {
-        const user = await this.usersRepository.findOneBy({ email })
+        const user = await this.usersRepository
+            .createQueryBuilder('user')
+            .where('LOWER(user.email) = :email', { email: email.trim().toLowerCase() })
+            .getOne()
         if (!user) {
-          throw new NotFoundError(`User not found using email ${email}`)
+          throw new NotFoundError('User not found')
         }
 
         return user
+    }
+
+    async emailExists(email: string): Promise<boolean> {
+        return this.usersRepository
+            .createQueryBuilder('user')
+            .where('LOWER(user.email) = :email', { email: email.toLowerCase() })
+            .getExists()
     }
 
     async findByName(name: string): Promise<UserModel> {
