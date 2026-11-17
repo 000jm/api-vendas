@@ -1,35 +1,23 @@
-
-import { UnathorizedError } from "@/common/domain/errors/unathorized-error"
-import { Request, Response } from "express"
-import { usersDataValidation } from "../validation/users.validation"
-import { UpdateUserBodySchema } from "../schema/users.schemas"
-import { UpdateUserUseCase } from "@/users/application/usecases/update-user.usecase"
-import { container } from "tsyringe"
-import { instanceToInstance } from "class-transformer"
+import { instanceToInstance } from 'class-transformer'
+import { container } from 'tsyringe'
+import type { Request, Response } from 'express'
+import { UpdateUserUseCase } from '@/users/application/usecases/update-user.usecase'
+import { UpdateUserBodySchema } from '../schema/users.schemas'
+import { usersDataValidation } from '../validation/users.validation'
 
 export async function updateUserController(req: Request, res: Response): Promise<Response> {
 
-    if(!req.user) {
-        throw new UnathorizedError('Unathorized')
-    }
+    const { name, email, old_password, password } = await usersDataValidation(UpdateUserBodySchema, req.body)
 
-    const id = req.user.id
+    const updateUserUseCase: UpdateUserUseCase.UseCase = container.resolve('UpdateUserUseCase')
 
-    const data = await usersDataValidation(UpdateUserBodySchema, req.body)
-
-    const { name, email, old_password, password } = data as { name: string, email: string, old_password: string, password: string }
-
-    const input: UpdateUserUseCase.Input = {
-        user_id: id,
+    const user = await updateUserUseCase.execute({
+        user_id: req.user.id,
         name,
         email,
         old_password,
         password
-    }
-
-    const updateUserUseCase: UpdateUserUseCase.UseCase = container.resolve('UpdateUserUseCase')
-
-    const user = await updateUserUseCase.execute(input)
+    })
 
     return res.status(200).json(instanceToInstance(user))
 

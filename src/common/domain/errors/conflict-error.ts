@@ -1,13 +1,12 @@
-
-import AppError from "./app-errors.ts"
+import AppError from './app-errors'
 
 class ConflictError extends AppError {
 
-    constructor(message:string) {
+    constructor(message: string) {
         super(message, 409)
         this.name = 'ConflictError'
     }
-    
+
 }
 
 export default ConflictError

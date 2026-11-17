@@ -17,7 +17,7 @@ export namespace AuthenticateUserUseCase {
 
     @injectable()
     export class UseCase {
-        
+
         constructor(
             @inject('UsersRepository')
             private usersRepository: UsersRepository,
@@ -26,38 +26,24 @@ export namespace AuthenticateUserUseCase {
         ) {}
 
         async execute(input: Input): Promise<Output> {
-            
             if(!input.email || !input.password) {
                 throw new InvalidCredentialsError('Invalid credentials')
             }
 
-            let user: UserOutput
-
-            try {
-                user = await this.usersRepository.findByEmail(input.email)
-            } catch (error) {
-                if (error instanceof NotFoundError) {
-                    throw new InvalidCredentialsError('Invalid credentials')
-                }
-
-                throw error
-            }
+            const user = await this.usersRepository.findByEmail(input.email)
 
             if (!user) {
                 throw new InvalidCredentialsError('Invalid credentials')
             }
 
-            const passwordMatch = await this.hashProvider.compareHash(
-                input.password,
-                user.password
-            )
+            const passwordMatch = await this.hashProvider.compareHash(input.password, user.password)
 
             if (!passwordMatch) {
-                throw new InvalidCredentialsError('Invalid credentials')
+                throw new InvalidCredentialsError('Invalid password')
             }
 
             return user
-            
+
         }
 
     }

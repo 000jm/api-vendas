@@ -1,6 +1,5 @@
-
 export type GenerateAuthKeyProps = {
-    acess_token: string
+    access_token: string
 }
 
 export type VerifyAuthKeyProps = {

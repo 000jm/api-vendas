@@ -1,17 +1,18 @@
+import BadRequestError from '@/common/domain/errors/bad-request-error'
+import type { ZodError, ZodType } from 'zod'
 
-import AppError from "@/common/domain/errors/app-errors.ts"
-import z from "zod"
+function formatZodError(error: ZodError) {
+    return error.issues.map(issue => ({
+        field: issue.path.join('.') || 'body',
+        message: issue.message,
+    }))
+}
 
-/**
- * @param schema objeto com schema de validation para o Zod
- * @param data objeto com os dados a serem validados
- * @returns retorna os dados validados
- */
-export async function productDataValidation(schema: any, data: any) {
+export async function productDataValidation<T>(schema: ZodType<T>, data: unknown): Promise<T> {
     const validData = schema.safeParse(data)
-    if(!validData.success) {
-        console.error('Invalid data: ', validData.error)
-        throw new AppError('Invalid data')
+
+    if (!validData.success) {
+        throw new BadRequestError('Dados inválidos', formatZodError(validData.error))
     }
 
     return validData.data

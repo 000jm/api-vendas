@@ -1,13 +1,12 @@
-
-import { SearchInput, SearchOutput } from "@/common/domain/repository/repository.interface"
-import { UserTokensModel } from "@/users/domain/models/user-tokens.model"
-import { CreateUserTokensProps, UserTokensRepository } from "@/users/domain/repositories/user-tokens.repository"
-import { Repository } from "typeorm"
-import { UserTokens } from "../entities/user-tokens.entity"
-import { inject, injectable } from "tsyringe"
-import type { UsersRepository } from "@/users/domain/repositories/users.repository"
-import NotFoundError from "@/common/domain/errors/not-found-error"
-import BadRequestError from "@/common/domain/errors/bad-request-error"
+import type { SearchInput, SearchOutput } from '@/common/domain/repository/repository.interface'
+import BadRequestError from '@/common/domain/errors/bad-request-error'
+import NotFoundError from '@/common/domain/errors/not-found-error'
+import type { UserTokensModel } from '@/users/domain/models/user-tokens.model'
+import type { CreateUserTokensProps, UserTokensRepository } from '@/users/domain/repositories/user-tokens.repository'
+import type { UsersRepository } from '@/users/domain/repositories/users.repository'
+import { inject, injectable } from 'tsyringe'
+import type { Repository } from 'typeorm'
+import { UserTokens } from '../entities/user-tokens.entity'
 
 @injectable()
 export class UserTokensTypeormRepository implements UserTokensRepository {
@@ -22,108 +21,92 @@ export class UserTokensTypeormRepository implements UserTokensRepository {
     ) {}
 
     create(props: CreateUserTokensProps): UserTokensModel {
-        
         return this.userTokenRepository.create(props)
-
     }
 
     async insert(model: UserTokensModel): Promise<UserTokensModel> {
-        
         return this.userTokenRepository.save(model)
-
     }
 
     async findById(id: string): Promise<UserTokensModel> {
-        
         return this._get(id)
-
     }
 
     async update(model: UserTokensModel): Promise<UserTokensModel> {
+        await this._get(model.id)
 
-        const userToken = await this.findById(model.id)
-        Object.assign(userToken, {
-            ...(model.token !== undefined && {name: model.token}),
+        await this.userTokenRepository.update({ id: model.id }, {
+            token: model.token,
             updated_at: new Date()
         })
 
-        await this.userTokenRepository.update({ id: model.id }, userToken)
-
-        return userToken
-
+        return this._get(model.id)
     }
 
     async delete(id: string): Promise<void> {
-
         await this._get(id)
-        await this.userTokenRepository.delete({ id: id })
-        
+        await this.userTokenRepository.delete({ id })
     }
 
     async search(props: SearchInput): Promise<SearchOutput<UserTokensModel>> {
-        const validSort = this.sortableFields.includes(props.sort) || false
-        const dirOps = ['asc', 'desc']
-        const validSortDir = (props.sort_dir && dirOps.includes(props.sort_dir)) || false
+        const page = props.page ?? 1
+        const perPage = props.per_page ?? 15
+        const sort = props.sort && this.sortableFields.includes(props.sort) ? props.sort : 'created_at'
+        const sortDir = props.sort_dir === 'asc' || props.sort_dir === 'desc' ? props.sort_dir : 'desc'
 
-        const orderByField = validSort ? props.sort : 'created_at'
-        const orderByDir = validSortDir ? props.sort_dir : 'desc'
- 
-        if(!props.page) props.page = 1
-        if(!props.per_page) props.per_page = 10
-
-        if(orderByDir && orderByDir !== 'desc' && orderByDir !== 'asc') throw new BadRequestError('Try a valid sort directory(asc or desc)')
+        if (props.sort_dir && props.sort_dir !== 'asc' && props.sort_dir !== 'desc') {
+            throw new BadRequestError('Direção de ordenação inválida. Use "asc" ou "desc"')
+        }
 
         const [userTokens, total] = await this.userTokenRepository.findAndCount({
-            order: { [orderByField]: orderByDir },
-            skip: (props.page - 1) * props.per_page,
-            take: props.per_page,
+            order: { [sort]: sortDir },
+            skip: (page - 1) * perPage,
+            take: perPage,
         })
 
         return {
             items: userTokens,
-            per_page: props.per_page,
+            per_page: perPage,
             total,
-            current_page: props.page,
-            sort: orderByField,
-            sort_dir: orderByDir,
+            current_page: page,
+            sort,
+            sort_dir: sortDir,
             filter: null
         }
     }
 
     async generateToken(props: CreateUserTokensProps): Promise<UserTokensModel> {
-        
         const user = await this.usersRepository.findById(props.user_id)
 
-        const userToken = this.userTokenRepository.create({
-            user_id: user.id
-        })
+        await this.deleteByUserId(user.id)
 
-        await this.userTokenRepository.save(userToken)
+        const userToken = this.userTokenRepository.create({ user_id: user.id })
 
-        return userToken
-
+        return this.userTokenRepository.save(userToken)
     }
 
     async findByToken(token: string): Promise<UserTokensModel> {
-        
-        const userToken = this.userTokenRepository.findOneBy({ token })
+        const userToken = await this.userTokenRepository.findOneBy({ token })
 
-        if(!userToken) throw new NotFoundError('User token not found')
-
-        return userToken
-
-    }
-
-    protected async _get(id: string): Promise<UserTokensModel> {
-
-        const userToken = await this.userTokenRepository.findOneBy({ id })
-
-        if(!userToken) {
-            throw new NotFoundError(`User not found with id: ${id}`)
+        if (!userToken) {
+            throw new NotFoundError('Token de redefinição inválido')
         }
 
         return userToken
-
     }
-    
+
+    async deleteByUserId(user_id: string): Promise<void> {
+        await this.userTokenRepository.delete({ user_id })
+    }
+
+    private async _get(id: string): Promise<UserTokensModel> {
+        const userToken = await this.userTokenRepository.findOneBy({ id })
+
+        if (!userToken) {
+            throw new NotFoundError('Token de redefinição não encontrado')
+        }
+
+        return userToken
+    }
+
 }

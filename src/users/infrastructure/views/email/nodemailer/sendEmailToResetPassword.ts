@@ -1,21 +1,16 @@
+import { apiSendEmail } from '@/common/infrastructure/config/email/nodemailer.sendmail'
+import { env } from '@/common/infrastructure/env'
+import type { UserOutput } from '@/users/application/dtos/user-output.dto'
+import path from 'node:path'
 
-import { apiSendEmail } from "@/common/infrastructure/config/email/nodemailer.sendmail"
-import { UserOutput } from "@/users/application/dtos/user-output.dto"
-import path from "node:path"
-
-type sendEmailToResetPasswordProps = {
-    user: UserOutput,
+type SendEmailToResetPasswordProps = {
+    user: UserOutput
     token: string
 }
 
-export async function sendEmailToResetPassword({ user, token }: sendEmailToResetPasswordProps) {
-    
-    const emailTemplate = path.resolve(
-        __dirname,
-        '..',
-        '..',
-        'forgot-password.hbs'
-    )
+export async function sendEmailToResetPassword({ user, token }: SendEmailToResetPasswordProps): Promise<void> {
+
+    const emailTemplate = path.resolve(__dirname, '..', '..', 'forgot-password.hbs')
 
     await apiSendEmail({
         to: {
@@ -27,7 +22,7 @@ export async function sendEmailToResetPassword({ user, token }: sendEmailToReset
             file: emailTemplate,
             variables: {
                 name: user.name,
-                link: `http://localhost:3000/reset_password?token=${token}`
+                link: `${env.FRONTEND_URL}/reset-password?token=${token}`
             }
         }
     })

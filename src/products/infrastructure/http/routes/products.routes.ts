@@ -14,38 +14,65 @@ const productRouter = Router()
  *   schemas:
  *     Product:
  *       type: object
- *       required:
- *         - name
- *         - price
- *         - quantity
  *       properties:
  *         id:
  *           type: string
- *           description: The auto-generated id (uuid) of the product
+ *           format: uuid
  *         name:
  *           type: string
- *           description: The name of the product
  *         price:
  *           type: number
- *           description: The price of the product
  *         quantity:
- *           type: number
- *           description: The quantity of the product
+ *           type: integer
  *         created_at:
  *           type: string
  *           format: date-time
- *           description: The date the product was added
  *         updated_at:
  *           type: string
  *           format: date-time
- *           description: The date the product was last updated
- *       example:
- *         id: 06db518e-613b-4a76-8e4f-2e305fe4f68d
- *         name: Sample Product
- *         price: 29.99
- *         quantity: 100
- *         created_at: 2023-01-01T10:00:00Z
- *         updated_at: 2023-01-01T10:00:00Z
+ *     ProductInput:
+ *       type: object
+ *       required: [name, price, quantity]
+ *       properties:
+ *         name:
+ *           type: string
+ *         price:
+ *           type: number
+ *         quantity:
+ *           type: integer
+ *     ProductUpdateInput:
+ *       type: object
+ *       properties:
+ *         name:
+ *           type: string
+ *         price:
+ *           type: number
+ *         quantity:
+ *           type: integer
+ *     ProductPagination:
+ *       type: object
+ *       properties:
+ *         items:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/Product'
+ *         total:
+ *           type: integer
+ *         current_page:
+ *           type: integer
+ *         per_page:
+ *           type: integer
+ *         last_page:
+ *           type: integer
+ *         sort:
+ *           type: string
+ *           nullable: true
+ *         sort_dir:
+ *           type: string
+ *           nullable: true
+ *         filter:
+ *           type: string
+ *           nullable: true
  */
 
 /**
@@ -66,18 +93,26 @@ const productRouter = Router()
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Product'
+ *             $ref: '#/components/schemas/ProductInput'
  *     responses:
  *       201:
- *         description: The product was successfully created
+ *         description: Product created
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Product'
  *       400:
- *         description: Input data not provided or invalid
+ *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       409:
- *         description: Name already used on another product
+ *         description: Name already in use
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 productRouter.post('/', createProductController)
 
@@ -92,17 +127,27 @@ productRouter.post('/', createProductController)
  *         name: id
  *         schema:
  *           type: string
+ *           format: uuid
  *         required: true
- *         description: The product ID
  *     responses:
  *       200:
- *         description: The product
+ *         description: Product
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Product'
+ *       400:
+ *         description: Invalid id
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       404:
- *         description: The product was not found
+ *         description: Product not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 productRouter.get('/:id', getProductController)
 
@@ -117,27 +162,39 @@ productRouter.get('/:id', getProductController)
  *         name: id
  *         schema:
  *           type: string
+ *           format: uuid
  *         required: true
- *         description: The product ID
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Product'
+ *             $ref: '#/components/schemas/ProductUpdateInput'
  *     responses:
  *       200:
- *         description: The product was successfully updated
+ *         description: Product updated
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Product'
  *       400:
- *         description: Input data not provided or invalid
+ *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       404:
- *         description: The product was not found
+ *         description: Product not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       409:
- *         description: Name already used on another product
+ *         description: Name already in use
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 productRouter.put('/:id', updateProductController)
 
@@ -152,13 +209,18 @@ productRouter.put('/:id', updateProductController)
  *         name: id
  *         schema:
  *           type: string
+ *           format: uuid
  *         required: true
  *         description: The product ID
  *     responses:
  *       204:
- *         description: The product was successfully deleted
+ *         description: Product deleted
  *       404:
- *         description: The product was not found
+ *         description: Product not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 productRouter.delete('/:id', deleteProductController)
 
@@ -173,39 +235,36 @@ productRouter.delete('/:id', deleteProductController)
  *         name: page
  *         schema:
  *           type: integer
- *           default: 1
- *         description: The page number to retrieve
  *       - in: query
  *         name: per_page
  *         schema:
  *           type: integer
- *           default: 15
- *         description: Number of items per page
  *       - in: query
  *         name: sort
  *         schema:
  *           type: string
- *           default: null
- *         description: Field to sort by
  *       - in: query
  *         name: sort_dir
  *         schema:
  *           type: string
- *           default: null
- *         description: Sort direction (asc or desc)
+ *           enum: [asc, desc]
  *       - in: query
  *         name: filter
  *         schema:
  *           type: string
- *           default: null
- *         description: Filter string to search for specific products
  *     responses:
  *       200:
- *         description: A paginated list of products
+ *         description: Paginated products
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/ProductListResponse'
+ *               $ref: '#/components/schemas/ProductPagination'
+ *       400:
+ *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 productRouter.get('/', searchProductController)
 

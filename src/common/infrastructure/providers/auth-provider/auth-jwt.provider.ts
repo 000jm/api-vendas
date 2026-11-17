@@ -1,11 +1,10 @@
-
-import { AuthProvider, GenerateAuthKeyProps, VerifyAuthKeyProps } from "@/common/domain/providers/auth-provider.ts"
+import type { AuthProvider, GenerateAuthKeyProps, VerifyAuthKeyProps } from '@/common/domain/providers/auth-provider'
+import { UnauthorizedError } from '@/common/domain/errors/unauthorized-error'
+import { env } from '@/common/infrastructure/env'
 import jwt from 'jsonwebtoken'
-import { env } from "../../env"
-import { InvalidCredentialsError } from "@/common/domain/errors/invalid-credetials-error"
-import { injectable } from "tsyringe"
+import { injectable } from 'tsyringe'
 
-export type DecodedTokenProps = {
+type DecodedTokenProps = {
     sub: string
 }
 
@@ -14,30 +13,26 @@ export class JwtAuthProvider implements AuthProvider {
 
     generateAuthKey(user_id: string): GenerateAuthKeyProps {
 
-        try {
-            const acess_token = jwt.sign({}, env.JWT_SECRET, {
-                expiresIn: env.JWT_EXPIRES_IN,
-                subject: user_id
-            })
+        const access_token = jwt.sign({}, env.JWT_SECRET, {
+            expiresIn: env.JWT_EXPIRES_IN,
+            subject: user_id
+        })
 
-            return { acess_token }
-        } catch {
-            throw new InvalidCredentialsError('Invalid credentials')
-        }
+        return { access_token }
 
     }
-    
-    verifyAuthKey(token: string): VerifyAuthKeyProps {
-        
-        try {
 
+    verifyAuthKey(token: string): VerifyAuthKeyProps {
+
+        try {
             const decodedToken = jwt.verify(token, env.JWT_SECRET)
             const { sub } = decodedToken as DecodedTokenProps
 
             return { user_id: sub }
         } catch {
-            throw new InvalidCredentialsError('Invalid credentials')
+            throw new UnauthorizedError('Token de acesso inválido ou expirado')
         }
 
     }
+
 }

@@ -13,6 +13,10 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 
+# Uploads (local storage)
+uploads/*
+!uploads/.gitkeep
+
 # OS
 .DS_Store
 

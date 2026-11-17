@@ -1,10 +1,9 @@
+import BadRequestError from '@/common/domain/errors/bad-request-error'
+import type { ProductsRepository } from '@/products/domain/repositories/product.repository'
+import { inject, injectable } from 'tsyringe'
+import type ProductOutput from '../dtos/product-output.dto'
 
-import BadRequestError from "@/common/domain/errors/bad-request-error.ts"
-import type { ProductsRepository } from "@/products/domain/repositories/product.repository.ts"
-import { inject, injectable } from "tsyringe"
-import ProductOutput from "../dtos/product-output.dto.ts"
-
-namespace CreateProductUseCase {
+export namespace CreateProductUseCase {
 
     export type Input = {
         name: string
@@ -16,18 +15,28 @@ namespace CreateProductUseCase {
 
     @injectable()
     export class UseCase {
+
         constructor(
-            @inject('ProductRepository') 
+            @inject('ProductRepository')
             private productsRepository: ProductsRepository,
         ) {}
 
         async execute(input: Input): Promise<Output> {
-            if(!input.name || input.price <= 0 || input.price === undefined || input.quantity <= 0 || input.quantity === undefined) throw new BadRequestError('Input data not provided or invalid')
 
-            await this.productsRepository.conflictingName(input.name)
-                
-            // const product: ProductOutput = this.productsRepository.create(input)
-            const product = this.productsRepository.create(input)
+            const name = input.name?.trim()
+
+            if (!name || !input.price || input.price <= 0 || !input.quantity || input.quantity <= 0) {
+                throw new BadRequestError('Dados do produto inválidos')
+            }
+
+            await this.productsRepository.conflictingName(name)
+
+            const product = this.productsRepository.create({
+                name,
+                price: input.price,
+                quantity: input.quantity
+            })
+
             await this.productsRepository.insert(product)
 
             return {
@@ -38,7 +47,9 @@ namespace CreateProductUseCase {
                 created_at: product.created_at,
                 updated_at: product.updated_at
             }
+
         }
+
     }
 
 }

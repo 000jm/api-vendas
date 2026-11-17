@@ -1,18 +1,18 @@
-
 import 'reflect-metadata'
-import app from './app.ts'
-import { env } from '../env/index.ts'
-import dataSource from '../typeorm/index.ts'
+import '@/common/infrastructure/container'
+import app from './app'
+import { env } from '../env'
+import dataSource from '../typeorm'
 
 dataSource
-.initialize()
-.then(async () => {
-    // await dataSource.manager.query('DELETE FROM products')
-    // await dataSource.manager.query('DELETE FROM users')
-    // await dataSource.manager.query('DELETE FROM user_tokens')
-    app.listen(env.PORT, () => {
-        console.log(`running on ${env.PORT}, acess in ${env.API_URL}`)
-        console.log(`Acess our api documentation on GET ${env.API_URL}/docs`)
+    .initialize()
+    .then(() => {
+        app.listen(env.PORT, () => {
+            console.log(`API rodando em ${env.API_URL}`)
+            console.log(`Documentação disponível em ${env.API_URL}/docs`)
+        })
     })
-})
-.catch((error) => console.error('error initializing data source: ', error))
+    .catch(error => {
+        console.error('Erro ao inicializar o banco de dados:', error)
+        process.exit(1)
+    })

@@ -1,54 +1,53 @@
-
-
-import ProductModel from "@/products/domain/models/products.model.ts"
-import { CreateProductProps, ProductId, ProductsRepository } from "@/products/domain/repositories/product.repository.ts"
-import Product from "../entities/products.entity.ts"
-import { ILike, In, Repository } from "typeorm"
-import NotFoundError from "@/common/domain/errors/not-found-error.ts"
-import ConflictError from "@/common/domain/errors/conflict-error.ts"
-import { inject, injectable } from "tsyringe"
-import BadRequestError from "@/common/domain/errors/bad-request-error.ts"
-
-import { SearchOutput } from "@/common/domain/repository/repository.interface.ts"
-import { SearchInputDto } from "@/products/application/usecases/dtos/search-input.dto.ts"
+import type { SearchInput, SearchOutput } from '@/common/domain/repository/repository.interface'
+import BadRequestError from '@/common/domain/errors/bad-request-error'
+import ConflictError from '@/common/domain/errors/conflict-error'
+import NotFoundError from '@/common/domain/errors/not-found-error'
+import type ProductModel from '@/products/domain/models/products.model'
+import type { CreateProductProps, ProductId, ProductsRepository } from '@/products/domain/repositories/product.repository'
+import { inject, injectable } from 'tsyringe'
+import { ILike, In, type Repository } from 'typeorm'
+import Product from '../entities/products.entity'
 
 @injectable()
 class ProductsTypeormRepository implements ProductsRepository {
-    sortableFields:string[] = ['name', 'created_at', 'price', 'quantity']
+
+    sortableFields = ['name', 'created_at', 'price', 'quantity']
 
     constructor(
         @inject('ProductsDefaultTypeormRepository')
         private productsRepository: Repository<Product>
     ) {}
-    
+
     create(props: CreateProductProps): ProductModel {
         return this.productsRepository.create(props)
     }
-    
+
     insert(model: ProductModel): Promise<ProductModel> {
         return this.productsRepository.save(model)
     }
 
     async findById(id: string): Promise<ProductModel> {
-        const product = await this._get(id)
-
-        return product
+        return this._get(id)
     }
 
     async update(model: ProductModel): Promise<ProductModel> {
-        const validProduct = await this._get(model.id)
-        const updated_at = new Date()
-        const updatedProduct = {
-            id: validProduct.id,
-            ...(model.name !== undefined && {name: model.name}),
-            ...(model.price !== undefined && {price: model.price}),
-            ...(model.quantity !== undefined && {quantity: model.quantity}),
-            updated_at,
+        const product = await this._get(model.id)
+
+        if (model.name !== undefined && model.name !== product.name) {
+            const productWithSameName = await this.productsRepository.findOneBy({ name: model.name })
+
+            if (productWithSameName && productWithSameName.id !== model.id) {
+                throw new ConflictError('Já existe um produto com esse nome')
+            }
         }
-        if(model.name === validProduct.name) await this.conflictingName(model.name)
-        await this.productsRepository.update({ id: model.id }, updatedProduct)
-        
-        return updatedProduct
+
+        await this.productsRepository.update({ id: model.id }, {
+            ...(model.name !== undefined && { name: model.name }),
+            ...(model.price !== undefined && { price: model.price }),
+            ...(model.quantity !== undefined && { quantity: model.quantity }),
+        })
+
+        return this._get(model.id)
     }
 
     async delete(id: string): Promise<void> {
@@ -56,18 +55,15 @@ class ProductsTypeormRepository implements ProductsRepository {
         await this.productsRepository.delete({ id })
     }
 
-    async search(props: SearchInputDto): Promise<SearchOutput<ProductModel>> {
-        const validSort: boolean = this.sortableFields.includes(props.sort) || false
-        const dirOps = ['asc', 'desc']
-        const validSortDir: boolean = (props.sort_dir && dirOps.includes(props.sort_dir)) || false
+    async search(props: SearchInput): Promise<SearchOutput<ProductModel>> {
+        const page = props.page ?? 1
+        const perPage = props.per_page ?? 15
+        const sort = props.sort && this.sortableFields.includes(props.sort) ? props.sort : 'created_at'
+        const sortDir = props.sort_dir === 'asc' || props.sort_dir === 'desc' ? props.sort_dir : 'desc'
 
-        const orderByField: string = validSort ? props.sort : 'created_at'
-        const orderByDir: string = validSortDir ? props.sort_dir : 'desc'
- 
-        if(!props.page) props.page = 1
-        if(!props.per_page) props.per_page = 10
-
-        if(orderByDir && orderByDir !== 'desc' && orderByDir !== 'asc') throw new BadRequestError('Try a valid sort directory(asc or desc)')
+        if (props.sort_dir && props.sort_dir !== 'asc' && props.sort_dir !== 'desc') {
+            throw new BadRequestError('Direção de ordenação inválida. Use "asc" ou "desc"')
+        }
 
         const [products, total] = await this.productsRepository.findAndCount({
             ...(props.filter && {
@@ -75,53 +71,51 @@ class ProductsTypeormRepository implements ProductsRepository {
                     name: ILike(`%${props.filter}%`)
                 }
             }),
-            order: { [orderByField]: orderByDir },
-            skip: (props.page - 1) * props.per_page,
-            take: props.per_page,
+            order: { [sort]: sortDir },
+            skip: (page - 1) * perPage,
+            take: perPage,
         })
 
         return {
             items: products,
-            per_page: props.per_page,
+            per_page: perPage,
             total,
-            current_page: props.page,
-            sort: orderByField,
-            sort_dir: orderByDir,
-            filter: props.filter
+            current_page: page,
+            sort,
+            sort_dir: sortDir,
+            filter: props.filter ?? null
         }
     }
 
     async findByName(name: string): Promise<ProductModel> {
         const product = await this.productsRepository.findOneBy({ name })
-        if(!product) {
-            throw new NotFoundError(`Product not found with name: ${name}`)
+
+        if (!product) {
+            throw new NotFoundError('Produto não encontrado')
         }
+
         return product
     }
-    
+
     async conflictingName(name: string): Promise<void> {
         const product = await this.productsRepository.findOneBy({ name })
-        if(product) {
-            throw new ConflictError(`Product name ${name} already in use`)
+
+        if (product) {
+            throw new ConflictError('Já existe um produto com esse nome')
         }
     }
 
     async findByAllIds(productsIds: ProductId[]): Promise<ProductModel[]> {
         const ids = productsIds.map(productId => productId.id)
-        const products = await this.productsRepository.find({ where: { id: In(ids) } })
-        if(!products) {
-            throw new NotFoundError('Products not found')
-        }
-        // nao precisa porque ele retorna array de length 0/sem produtos
 
-        return products
+        return this.productsRepository.find({ where: { id: In(ids) } })
     }
 
-    protected async _get(id: string): Promise<ProductModel> {
+    private async _get(id: string): Promise<ProductModel> {
         const product = await this.productsRepository.findOneBy({ id })
-        // se fosse outro parametro indicando id teria que ser id: (parametro)
-        if(!product) {
-            throw new NotFoundError(`Product not found with id: ${id}`)
+
+        if (!product) {
+            throw new NotFoundError('Produto não encontrado')
         }
 
         return product

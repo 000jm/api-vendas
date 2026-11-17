@@ -32,6 +32,10 @@ export class User implements UserModel {
     getAvatarUrl() {
         if(!this.avatar) return null
 
+        if (env.STORAGE_DRIVER === 'local') {
+            return `${env.API_URL}/uploads/${this.avatar}`
+        }
+
         return `${env.SUPABASE_STORAGE_PUBLIC_URL}/${this.avatar}`
     }
     

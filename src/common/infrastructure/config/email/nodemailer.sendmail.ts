@@ -1,6 +1,6 @@
-
-import nodemailer from "nodemailer"
-import { HandlebarsEmailTemplate, HandlebarsEmailTemplateProps } from "./handlebars-email-template"
+import { env } from '@/common/infrastructure/env'
+import nodemailer, { type Transporter } from 'nodemailer'
+import { HandlebarsEmailTemplate, type HandlebarsEmailTemplateProps } from './handlebars-email-template'
 
 type MailContactProps = {
     name: string
@@ -9,34 +9,60 @@ type MailContactProps = {
 
 type SendEmailProps = {
     to: MailContactProps
-    from?: MailContactProps
     subject: string
     templateData: HandlebarsEmailTemplateProps
 }
 
 const mailTemplate = new HandlebarsEmailTemplate()
 
-export async function apiSendEmail(props: SendEmailProps): Promise<void> {
+let transporter: Transporter | null = null
 
-    const transporter = nodemailer.createTransport({
-        jsonTransport: true
+function getTransporter(): Transporter {
+
+    if (transporter) return transporter
+
+    if (!env.SMTP_HOST) {
+        if (env.NODE_ENV === 'production') {
+            throw new Error('SMTP não configurado')
+        }
+
+        transporter = nodemailer.createTransport({ jsonTransport: true })
+        return transporter
+    }
+
+    transporter = nodemailer.createTransport({
+        host: env.SMTP_HOST,
+        port: env.SMTP_PORT,
+        secure: env.SMTP_PORT === 465,
+        auth: env.SMTP_USER && env.SMTP_PASS
+            ? { user: env.SMTP_USER, pass: env.SMTP_PASS }
+            : undefined
     })
 
-    transporter.sendMail({
+    return transporter
+
+}
+
+export async function apiSendEmail({ to, subject, templateData }: SendEmailProps): Promise<void> {
+
+    const html = await mailTemplate.parse(templateData)
+
+    const info = await getTransporter().sendMail({
         from: {
-            name: props.from?.name || 'API vendas',
-            address: props.from?.email || 'joaomiguel@gmail.com'
+            name: env.MAIL_FROM_NAME,
+            address: env.MAIL_FROM_EMAIL
         },
         to: {
-            name: props.to.name,
-            address: props.to.email
+            name: to.name,
+            address: to.email
         },
-        subject: props.subject,
-        html: await mailTemplate.parse(props.templateData)
-    }, (err, info) => {
-        console.log(info.envelope)
-        console.log(info.messageId)
-        console.log(info.message)
+        subject,
+        html
     })
+
+    if (!env.SMTP_HOST) {
+        console.log(`[email] "${subject}" para ${to.email} não enviado (SMTP não configurado).`)
+        console.log(info.message.toString())
+    }
 
 }
