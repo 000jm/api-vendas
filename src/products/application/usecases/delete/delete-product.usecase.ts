@@ -1,10 +1,8 @@
+import type { ProductsRepository } from '@/products/domain/repositories/product.repository'
+import { inject, injectable } from 'tsyringe'
+import type ProductOutput from '../dtos/product-output.dto'
 
-import { inject, injectable } from "tsyringe"
-import ProductOutput from "../dtos/product-output.dto"
-import BadRequestError from "@/common/domain/errors/bad-request-error"
-import type { ProductsRepository } from "@/products/domain/repositories/product.repository"
-
-namespace DeleteProductUseCase {
+export namespace DeleteProductUseCase {
 
     export type Input = {
         id: string
@@ -14,18 +12,16 @@ namespace DeleteProductUseCase {
 
     @injectable()
     export class UseCase {
+
         constructor(
-            @inject('ProductRepository') 
+            @inject('ProductRepository')
             private productsRepository: ProductsRepository,
         ) {}
 
         async execute(input: Input): Promise<Output> {
-            if(!input) {
-                throw new BadRequestError('Input data not provided or invalid')
-            }
-
-            return await this.productsRepository.delete(input.id)
+            await this.productsRepository.delete(input.id)
         }
+
     }
 
 }

@@ -1,27 +1,24 @@
-
-import { Request, Response } from "express"
-import { usersDataValidation } from "../validation/users.validation"
-import { AuthenticateUserSchema } from "../schema/users.schemas"
-import { AuthenticateUserUseCase } from "@/users/application/usecases/authenticate-user.usecase"
-import { container } from "tsyringe"
-import { AuthProvider } from "@/common/domain/providers/auth-provider"
+import { instanceToInstance } from 'class-transformer'
+import { container } from 'tsyringe'
+import type { Request, Response } from 'express'
+import type { AuthProvider } from '@/common/domain/providers/auth-provider'
+import { AuthenticateUserUseCase } from '@/users/application/usecases/authenticate-user.usecase'
+import { AuthenticateUserSchema } from '../schema/users.schemas'
+import { usersDataValidation } from '../validation/users.validation'
 
 export async function authenticateUserController(req: Request, res: Response): Promise<Response> {
 
-    const data = await usersDataValidation(AuthenticateUserSchema, req.body)
-    const { email, password } = data
+    const { email, password } = await usersDataValidation(AuthenticateUserSchema, req.body)
 
     const authenticateUserUseCase: AuthenticateUserUseCase.UseCase = container.resolve('AuthenticateUserUseCase')
-
-    const user = await authenticateUserUseCase.execute({
-        email,
-        password
-    })
+    const user = await authenticateUserUseCase.execute({ email, password })
 
     const authProvider: AuthProvider = container.resolve('JwtAuthProvider')
+    const { access_token } = authProvider.generateAuthKey(user.id)
 
-    const { acess_token } = authProvider.generateAuthKey(user.id)
+    return res.status(200).json({
+        user: instanceToInstance(user),
+        access_token
+    })
 
-    return res.status(200).json({ acess_token })
-    
 }

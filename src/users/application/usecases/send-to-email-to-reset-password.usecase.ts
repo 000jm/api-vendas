@@ -1,8 +1,7 @@
-
-import { UserModel } from "@/users/domain/models/user.model"
-import type { UserTokensRepository } from "@/users/domain/repositories/user-tokens.repository"
-import type { UsersRepository } from "@/users/domain/repositories/users.repository"
-import { inject, injectable } from "tsyringe"
+import type { UserOutput } from '@/users/application/dtos/user-output.dto'
+import type { UserTokensRepository } from '@/users/domain/repositories/user-tokens.repository'
+import type { UsersRepository } from '@/users/domain/repositories/users.repository'
+import { inject, injectable } from 'tsyringe'
 
 export namespace SendEmailToResetPasswordUseCase {
 
@@ -11,7 +10,7 @@ export namespace SendEmailToResetPasswordUseCase {
     }
 
     export type Output = {
-        user: UserModel
+        user: UserOutput
         token: string
     }
 
@@ -27,14 +26,11 @@ export namespace SendEmailToResetPasswordUseCase {
 
         async execute(input: Input): Promise<Output> {
 
-            const user = await this.usersRepository.findByEmail(input.email)
+            const user = await this.usersRepository.findByEmail(input.email.trim().toLowerCase())
 
             const { token } = await this.userTokensRepository.generateToken({ user_id: user.id })
 
-            return {
-                user,
-                token
-            }
+            return { user, token }
 
         }
 

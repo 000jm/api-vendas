@@ -16,42 +16,79 @@ export const usersRoutes = Router()
  *   schemas:
  *     User:
  *       type: object
- *       required:
- *         - name
- *         - email
- *         - passowrd
  *       properties:
  *         id:
  *           type: string
- *           description: The auto-generated id (uuid) of the user
+ *           format: uuid
  *         name:
  *           type: string
- *           description: The name of the user
  *         email:
  *           type: string
- *           description: The email of the user
- *         passowrd:
- *           type: string
- *           description: The passowrd of the user
+ *           format: email
  *         avatar:
  *           type: string
- *           description: The avatar of the user
+ *           nullable: true
+ *           description: Stored avatar filename/key
+ *         avatar_url:
+ *           type: string
+ *           nullable: true
+ *           description: Public URL to display the avatar (use this in the front-end)
  *         created_at:
  *           type: string
  *           format: date-time
- *           description: The date the user was added
  *         updated_at:
  *           type: string
  *           format: date-time
- *           description: The date the user was last updated
- *       example:
- *         id: 06db518e-613b-4a76-8e4f-2e305fe4f68d
- *         name: Sample User
- *         email: sampleuser@mail.com
- *         password: $2a$06$tPOF8dcfc5sIvII3NTLQh.QF5sR4iBbgAihVn.l2M07WoDyD7b1Ge
- *         avatar: null
- *         created_at: 2023-01-01T10:00:00Z
- *         updated_at: 2023-01-01T10:00:00Z
+ *     CreateUserInput:
+ *       type: object
+ *       required: [name, email, password]
+ *       properties:
+ *         name:
+ *           type: string
+ *         email:
+ *           type: string
+ *           format: email
+ *         password:
+ *           type: string
+ *     UpdateProfileInput:
+ *       type: object
+ *       required: [name, email]
+ *       properties:
+ *         name:
+ *           type: string
+ *         email:
+ *           type: string
+ *           format: email
+ *         old_password:
+ *           type: string
+ *           description: Required when changing the password
+ *         password:
+ *           type: string
+ *           description: New password (requires old_password)
+ *     UserPagination:
+ *       type: object
+ *       properties:
+ *         items:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/User'
+ *         total:
+ *           type: integer
+ *         current_page:
+ *           type: integer
+ *         per_page:
+ *           type: integer
+ *         last_page:
+ *           type: integer
+ *         sort:
+ *           type: string
+ *           nullable: true
+ *         sort_dir:
+ *           type: string
+ *           nullable: true
+ *         filter:
+ *           type: string
+ *           nullable: true
  */
 
 /**
@@ -72,18 +109,26 @@ export const usersRoutes = Router()
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/User'
+ *             $ref: '#/components/schemas/CreateUserInput'
  *     responses:
  *       201:
- *         description: The user was successfully created
+ *         description: User created
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/User'
  *       400:
- *         description: Input data not provided or invalid
+ *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       409:
- *         description: Email already used on another user
+ *         description: Email already in use
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 usersRoutes.post('/', createUserController)
 
@@ -91,34 +136,44 @@ usersRoutes.post('/', createUserController)
  * @swagger
  * /users/avatar:
  *   patch:
- *     summary: Upload an image for a user
+ *     summary: Upload/update the authenticated user's avatar
+ *     description: Updates the avatar of the authenticated user. The previous avatar file is removed when replaced (when applicable). Use the returned `avatar_url` to display the image in the front-end.
  *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
  *         multipart/form-data:
  *           schema:
  *             type: object
+ *             required: [file]
  *             properties:
- *               user_id:
- *                 type: string
- *                 format: uuid
- *                 description: The user id
  *               file:
- *                 type: file
+ *                 type: string
  *                 format: binary
- *                 description: The image file to upload
+ *                 description: Image file (jpeg, jpg, png, webp), max 3MB
  *     responses:
  *       200:
- *         description: The image was successfully uploaded
+ *         description: Avatar updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
  *       400:
- *         description: Bad request
- *       404:
- *         description: The user was not found
- *       500:
- *         description: Some server error
+ *         description: Validation error (missing/invalid file or type/size)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       401:
+ *         description: Unauthorized (missing or invalid token)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
-usersRoutes.patch('/avatar', isAuthenticatedHandler, upload.single('file'),  updateAvatarController)
+usersRoutes.patch('/avatar', isAuthenticatedHandler, upload.single('file'), updateAvatarController)
 
 /**
  * @swagger
@@ -126,44 +181,43 @@ usersRoutes.patch('/avatar', isAuthenticatedHandler, upload.single('file'),  upd
  *   get:
  *     summary: Returns a paginated list of users
  *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: query
  *         name: page
  *         schema:
  *           type: integer
- *           default: 1
- *         description: The page number to retrieve
  *       - in: query
  *         name: per_page
  *         schema:
  *           type: integer
- *           default: 15
- *         description: Number of items per page
  *       - in: query
  *         name: sort
  *         schema:
  *           type: string
- *           default: null
- *         description: Field to sort by
  *       - in: query
  *         name: sort_dir
  *         schema:
  *           type: string
- *           default: null
- *         description: Sort direction (asc or desc)
+ *           enum: [asc, desc]
  *       - in: query
  *         name: filter
  *         schema:
  *           type: string
- *           default: null
- *         description: Filter string to search for specific users
  *     responses:
  *       200:
- *         description: A paginated list of users
+ *         description: Paginated users
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/UserListResponse'
+ *               $ref: '#/components/schemas/UserPagination'
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 usersRoutes.get('/', isAuthenticatedHandler, searchUserController)
 
@@ -171,17 +225,23 @@ usersRoutes.get('/', isAuthenticatedHandler, searchUserController)
  * @swagger
  * /users/profile:
  *   get:
- *     summary: Returns the user profile
+ *     summary: Returns the authenticated user's profile
  *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: The user profile
+ *         description: User profile
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/User'
  *       401:
  *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 usersRoutes.get('/profile', isAuthenticatedHandler, getUserController)
 
@@ -189,44 +249,40 @@ usersRoutes.get('/profile', isAuthenticatedHandler, getUserController)
  * @swagger
  * /users/profile:
  *   put:
- *     summary: Update the user profile
+ *     summary: Update the authenticated user's profile
  *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *                 description: The name of the user
- *               email:
- *                 type: string
- *                 description: The email of the user
- *               old_password:
- *                 type: string
- *                 description: The old password of the user
- *               password:
- *                 type: string
- *                 description: The new password of the user
- *             example:
- *               name: John Doe
- *               email: sampleuser@mail.com
- *               old_password: 1234
- *               password: 5678
+ *             $ref: '#/components/schemas/UpdateProfileInput'
  *     responses:
  *       200:
- *         description: The user profile was successfully updated
+ *         description: Profile updated
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/User'
  *       400:
- *         description: Input data not provided or invalid
+ *         description: Validation error (e.g. missing old_password when changing password)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       401:
  *         description: Unauthorized
- *       404:
- *         description: The user was not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       409:
+ *         description: Email already in use
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 usersRoutes.put('/profile', isAuthenticatedHandler, updateUserController)

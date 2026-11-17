@@ -57,9 +57,25 @@ export const passwordRouter = Router()
  *             $ref: '#/components/schemas/ForgotPassword'
  *     responses:
  *       204:
- *         description: Email sent successfully
- *       500:
- *         description: Internal server error
+ *         description: Reset token generated and email send attempted
+ *       400:
+ *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       503:
+ *         description: Token generated but email could not be sent
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 passwordRouter.post('/forgot', sendEmailToResetPasswordController)
 
@@ -78,7 +94,17 @@ passwordRouter.post('/forgot', sendEmailToResetPasswordController)
  *     responses:
  *       204:
  *         description: Password reset successfully
- *       500:
- *         description: Internal server error
+ *       400:
+ *         description: Validation error or expired token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       404:
+ *         description: Token not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 passwordRouter.post('/reset', resetPasswordController)

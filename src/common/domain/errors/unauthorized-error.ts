@@ -1,0 +1,10 @@
+import AppError from './app-errors'
+
+export class UnauthorizedError extends AppError {
+
+    constructor(message = 'Acesso não autorizado') {
+        super(message, 401)
+        this.name = 'UnauthorizedError'
+    }
+
+}

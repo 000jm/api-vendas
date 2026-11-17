@@ -7,4 +7,5 @@ export type UploaderProps = {
 
 export interface UploaderProvider {
     upload: (params: UploaderProps) => Promise<string>
+    delete: (filename: string) => Promise<void>
 }

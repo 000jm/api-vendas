@@ -1,6 +1,6 @@
-
 import { DataSource } from 'typeorm'
-import { env } from '../env/index.ts'
+import path from 'node:path'
+import { env } from '../env'
 
 const dataSource = new DataSource({
     type: env.DB_TYPE as 'postgres',
@@ -10,8 +10,8 @@ const dataSource = new DataSource({
     database: env.DB_NAME,
     username: env.DB_USER,
     password: env.DB_PASSWORD,
-    entities: ['**/entities/**/*.ts'],
-    migrations: ['**/migrations/**/*.ts'],
+    entities: [path.resolve(__dirname, '../../../**/entities/**/*.ts')],
+    migrations: [path.resolve(__dirname, '../migrations/*.ts')],
     synchronize: false,
     logging: false
 })

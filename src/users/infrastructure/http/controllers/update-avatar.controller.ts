@@ -1,22 +1,19 @@
-
-import { Request, Response } from "express"
-import { usersDataValidation } from "../validation/users.validation"
-import { UpdateAvatarUseCase } from "@/users/application/usecases/update-avatar-user.usecase"
-import { container } from "tsyringe"
-import { instanceToInstance } from "class-transformer"
-import { UpdateUserAvatarBodySchema, UpdateUserAvatarFileSchema } from "../schema/users.schemas"
+import { instanceToInstance } from 'class-transformer'
+import { container } from 'tsyringe'
+import type { Request, Response } from 'express'
+import { UpdateAvatarUseCase } from '@/users/application/usecases/update-avatar-user.usecase'
+import { UpdateUserAvatarFileSchema } from '../schema/users.schemas'
+import { usersDataValidation } from '../validation/users.validation'
 
 export async function updateAvatarController(req: Request, res: Response): Promise<Response> {
-
-    const { user_id } = await usersDataValidation(UpdateUserAvatarBodySchema, req.body)
 
     const { buffer, originalname, size, mimetype } = await usersDataValidation(UpdateUserAvatarFileSchema, req.file)
 
     const updateUserAvatar: UpdateAvatarUseCase.UseCase = container.resolve('UpdateAvatarUseCase')
 
     const user = await updateUserAvatar.execute({
-        user_id: user_id,
-        filename: originalname.split(' ').join('-'),
+        user_id: req.user.id,
+        filename: originalname,
         filesize: size,
         filetype: mimetype,
         body: buffer
