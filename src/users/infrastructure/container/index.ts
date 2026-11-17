@@ -13,6 +13,7 @@ import { SendEmailToResetPasswordUseCase } from "@/users/application/usecases/se
 import { ResetPasswordUseCase } from "@/users/application/usecases/reset-password.usecase.ts"
 import { GetUserUseCase } from "@/users/application/usecases/get-user.usecase.ts"
 import { UpdateUserUseCase } from "@/users/application/usecases/update-user.usecase.ts"
+import { CheckEmailStatusUseCase } from "@/users/application/usecases/check-email-status.usecase.ts"
 
 
 container.registerSingleton('UsersRepository', UsersTypeormRepository)
@@ -36,3 +37,5 @@ container.registerSingleton('ResetPasswordUseCase', ResetPasswordUseCase.UseCase
 container.registerSingleton('GetUserUseCase', GetUserUseCase.UseCase)
 
 container.registerSingleton('UpdateUserUseCase', UpdateUserUseCase.UseCase)
+
+container.registerSingleton('CheckEmailStatusUseCase', CheckEmailStatusUseCase.UseCase)

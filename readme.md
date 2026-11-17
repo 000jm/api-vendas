@@ -56,6 +56,11 @@ npm run dev
 
 **Partiu curso!**
 
+## Consulta pública de cadastro por e-mail
+
+`POST /auth/email-status` (prefixo da API: `/api`, quando configurado pelo deploy) recebe `{ "email": "pessoa@exemplo.com" }` e responde `200 { "exists": true }` ou `200 { "exists": false }`. O endereço é validado e espaços externos são removidos; a consulta normaliza para minúsculas. E-mail inválido recebe `400`. O endpoint não retorna nome, identificador ou outros dados de conta.
+
+Esta consulta é pública para permitir a experiência de cadastro antes do envio da senha e, por isso, permite inferir se um endereço está cadastrado. A rota limita cada IP a 30 solicitações por janela de 15 minutos e responde `429` após o limite. O contador reside na memória de cada processo e reinicia quando ele reinicia; em implantação com múltiplas instâncias, um limitador compartilhado no gateway/cache deve ser configurado para controle consistente. Evite registrar corpos de requisição que contenham endereços de e-mail.
 
 ## Redes Sociais
 

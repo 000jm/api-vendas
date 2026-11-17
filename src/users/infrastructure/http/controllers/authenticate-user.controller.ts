@@ -16,9 +16,6 @@ export async function authenticateUserController(req: Request, res: Response): P
     const authProvider: AuthProvider = container.resolve('JwtAuthProvider')
     const { access_token } = authProvider.generateAuthKey(user.id)
 
-    return res.status(200).json({
-        user: instanceToInstance(user),
-        access_token
-    })
-
+    return res.status(200).json({ access_token: acess_token })
+    
 }

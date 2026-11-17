@@ -4,9 +4,9 @@ const emailSchema = z.string().trim().toLowerCase().email('E-mail inválido')
 const passwordSchema = z.string().min(6, 'A senha deve ter no mínimo 6 caracteres')
 
 export const CreateUserSchema = z.object({
-    name: z.string().trim().min(1, 'Nome é obrigatório'),
+    name: z.string(),
     email: emailSchema,
-    password: passwordSchema
+    password: z.string()
 })
 
 export const GetUserSchema = z.object({
@@ -23,7 +23,7 @@ export const SearchUserSchema = z.object({
 
 export const AuthenticateUserSchema = z.object({
     email: emailSchema,
-    password: z.string().min(1, 'Senha é obrigatória')
+    password: z.string()
 })
 
 export const UpdateUserAvatarFileSchema = z.any().refine(file => !!file, {

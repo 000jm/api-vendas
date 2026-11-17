@@ -9,6 +9,7 @@ export type CreateUserProps = {
 
 export interface UsersRepository extends RepositoryInterface<UserModel, CreateUserProps> {
     findByEmail(email: string): Promise<UserModel>
+    emailExists(email: string): Promise<boolean>
     findByName(name: string): Promise<UserModel>
     conflictingEmail(email: string): Promise<void>
 }
