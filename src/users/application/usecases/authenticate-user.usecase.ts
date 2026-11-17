@@ -3,8 +3,7 @@ import { inject, injectable } from "tsyringe"
 import { UserOutput } from "../dtos/user-output.dto"
 import type { UsersRepository } from "@/users/domain/repositories/users.repository"
 import type { HashProvider } from "@/common/domain/providers/hash-provider"
-import { InvalidCredentialsError } from "@/common/domain/errors/invalid-credetials-error"
-import NotFoundError from "@/common/domain/errors/not-found-error"
+import { InvalidCredentialsError } from "@/common/domain/errors/invalid-credentials-error"
 
 export namespace AuthenticateUserUseCase {
 
